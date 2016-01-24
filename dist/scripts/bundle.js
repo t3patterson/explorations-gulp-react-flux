@@ -32095,10 +32095,48 @@ module.exports = warning;
 module.exports = require('./lib/React');
 
 },{"./lib/React":72}],200:[function(require,module,exports){
+"use strict"
+
+var data = [
+  {
+    name: "Travis Hubbard",
+    id: "travis-hubbard",
+    active: true
+  },
+  {
+    name: "Justin Richards",
+    id: "justin-richards",
+    active: true
+  },
+  {
+    name: "Susan Wingfield",
+    id: "susan-wingfield",
+    active: false
+  },
+  {
+    name: "Tommy Crimey",
+    id: "tommy-crimey",
+    active: true
+  }
+];
+
+function APIConstructor(d){
+  this.authorsList = d
+}
+
+APIConstructor.prototype.getActiveAuthors = function(){
+  return this.authorsList.filter(function(aut){
+    return aut.active 
+  })
+}
+
+var API = new APIConstructor(data);
+
+module.exports =  API
+
+},{}],201:[function(require,module,exports){
 "use strict";
 var React = require('react');
-
-console.log('about page routed')
 
 var About = React.createClass({displayName: "About",
   render: function(){
@@ -32117,18 +32155,15 @@ var About = React.createClass({displayName: "About",
       )
       )
   }
-})
+});;
 
+module.exports = About;
 
-module.exports = About
-
-},{"react":199}],201:[function(require,module,exports){
+},{"react":199}],202:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
-
 var Header = require('./common/header.js');
-
 var RouteHandler = require('react-router').RouteHandler
 
 var App = React.createClass({displayName: "App",
@@ -32144,10 +32179,95 @@ var App = React.createClass({displayName: "App",
 
 module.exports = App
 
-},{"./common/header.js":202,"react":199,"react-router":29}],202:[function(require,module,exports){
+},{"./common/header.js":205,"react":199,"react-router":29}],203:[function(require,module,exports){
+var React = require('react');
+
+var AuthorsList = React.createClass({displayName: "AuthorsList",
+  
+  propTypes: {
+    authors: React.PropTypes.array.isRequired
+  },
+
+  _createAuthorRows: function(auth,i){
+    return (
+      React.createElement("tr", {key: i}, 
+        React.createElement("td", null, 
+          i+1
+        ), 
+        
+        React.createElement("td", null, 
+          React.createElement("a", {href: auth.id}, " ", auth.id, " ")
+        ), 
+
+        React.createElement("td", null, 
+          auth.name
+        )
+      )
+    );
+  },
+
+  render: function(){
+    return (
+      React.createElement("table", {className: "table"}, 
+        React.createElement("thead", null, 
+          React.createElement("tr", null, 
+            React.createElement("th", null, "#"), 
+            React.createElement("th", null, "ID"), 
+            React.createElement("th", null, "Name")
+          )
+        ), 
+        React.createElement("tbody", null, 
+          this.props.authors.map(this._createAuthorRows)
+        )
+      )
+    )
+  }
+})
+
+module.exports = AuthorsList;
+
+},{"react":199}],204:[function(require,module,exports){
+var React = require('react')
+var AuthorAPI = require('../../_API.js');
+
+var AuthorsList = require('./_table_component.js')
+
+var AuthorsPage = React.createClass({displayName: "AuthorsPage",
+  
+  getInitialState: function(){
+    return {
+      authors: []
+    }
+  },
+
+  componentDidMount: function(){
+    if( this.isMounted() ){
+      var activeAuthors = AuthorAPI.getActiveAuthors();
+
+      this.setState({
+        authors: activeAuthors
+      });
+    }
+  },
+
+  render: function(){
+    return (
+      React.createElement("div", null, 
+        React.createElement("h1", null, "Authors"), 
+        React.createElement(AuthorsList, {authors: this.state.authors})
+      )
+    );
+  }
+})
+
+module.exports = AuthorsPage;
+
+},{"../../_API.js":200,"./_table_component.js":203,"react":199}],205:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
+var Router = require('react-router');
+var Link = Router.Link;
 
 var Header = React.createClass({displayName: "Header",
   render: function(){
@@ -32161,18 +32281,21 @@ var Header = React.createClass({displayName: "Header",
         ), 
         React.createElement("hr", null), 
         React.createElement("ul", {className: "nav navbar-nav"}, 
-          React.createElement("li", null, React.createElement("a", {href: "/"}, "Home")), 
-          React.createElement("li", null, React.createElement("a", {href: "/#about"}, "About"))
+          React.createElement("li", null, React.createElement(Link, {to: "app"}, "Home")), 
+          React.createElement("li", null, React.createElement("a", {href: "/#/about"}, "About")), 
+          React.createElement("li", null, React.createElement("a", {href: "/#/authors"}, "Authors"))
         )
       )
     )
   }
 })
 
+// NOTE: <Link to=«name»
+
 
 module.exports = Header
 
-},{"react":199}],203:[function(require,module,exports){
+},{"react":199,"react-router":29}],206:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -32190,9 +32313,13 @@ var Home = React.createClass({displayName: "Home",
 
 module.exports = Home
 
-},{"react":199}],204:[function(require,module,exports){
+},{"react":199}],207:[function(require,module,exports){
+/*eslint-disable strict*/
+
 // put jQuery in global namespace
 $ = jQuery = require('jquery');
+
+
 var React = require('react');
 var Router = require('react-router');
 
@@ -32202,7 +32329,7 @@ Router.run(appRoutes, function(Handler){
   React.render(React.createElement(Handler, null), document.querySelector('.container'));
 })
 
-},{"./routes.js":205,"jquery":3,"react":199,"react-router":29}],205:[function(require,module,exports){
+},{"./routes.js":208,"jquery":3,"react":199,"react-router":29}],208:[function(require,module,exports){
 "use strict"
 var React = require('react');
 //React-Router
@@ -32212,16 +32339,20 @@ var Route = Router.Route;
 
 //Components
 var App = require('./components/app.js')
-var Home = require('./components/homePage.js');
-var About = require('./components/about/aboutPage.js');
+var HomeView = require('./components/home_page.js');
+var AboutView = require('./components/about/about_page.js');
+var AuthorsView = require('./components/authors/authors_page.js');
+
+
 
 var routes = (
   React.createElement(Route, {name: "app", path: "/", handler: App}, 
-    React.createElement(DefaultRoute, {handler: Home}), 
-    React.createElement(Route, {name: "about", handler: About})
+    React.createElement(DefaultRoute, {handler: HomeView}), 
+    React.createElement(Route, {name: "about", handler: AboutView}), 
+    React.createElement(Route, {name: "authors", handler: AuthorsView})
   )
 );
 
 module.exports = routes;
 
-},{"./components/about/aboutPage.js":200,"./components/app.js":201,"./components/homePage.js":203,"react":199,"react-router":29}]},{},[204]);
+},{"./components/about/about_page.js":201,"./components/app.js":202,"./components/authors/authors_page.js":204,"./components/home_page.js":206,"react":199,"react-router":29}]},{},[207]);

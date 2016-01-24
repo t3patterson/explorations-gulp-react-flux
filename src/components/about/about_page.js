@@ -1,8 +1,6 @@
 "use strict";
 var React = require('react');
 
-console.log('about page routed')
-
 var About = React.createClass({
   render: function(){
     return(
@@ -20,7 +18,6 @@ var About = React.createClass({
       </div>
       )
   }
-})
+});;
 
-
-module.exports = About
+module.exports = About;

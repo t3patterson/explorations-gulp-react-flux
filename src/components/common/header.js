@@ -1,6 +1,8 @@
 "use strict";
 
 var React = require('react');
+var Router = require('react-router');
+var Link = Router.Link;
 
 var Header = React.createClass({
   render: function(){
@@ -14,13 +16,16 @@ var Header = React.createClass({
         </div>
         <hr/>
         <ul className="nav navbar-nav">
-          <li><a href="/">Home</a></li>
-          <li><a href="/#about">About</a></li>
+          <li><Link to="app">Home</Link></li>
+          <li><a href="/#/about">About</a></li>
+          <li><a href="/#/authors">Authors</a></li>
         </ul>
       </nav>
     )
   }
 })
+
+// NOTE: <Link to=«name»
 
 
 module.exports = Header

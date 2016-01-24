@@ -1,5 +1,9 @@
+/*eslint-disable strict*/
+
 // put jQuery in global namespace
 $ = jQuery = require('jquery');
+
+
 var React = require('react');
 var Router = require('react-router');
 
