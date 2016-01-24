@@ -2,7 +2,7 @@
 
 var React = require('react');
 
-var HomePage = React.createClass({
+var Home = React.createClass({
   render: function(){
     return(
       <div>
@@ -13,4 +13,4 @@ var HomePage = React.createClass({
   }
 })
 
-React.render(<HomePage/>  , document.querySelector('.container') )
+module.exports = Home

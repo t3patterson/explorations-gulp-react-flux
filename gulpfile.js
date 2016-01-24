@@ -27,6 +27,7 @@ var config = {
   paths: {
     html: './src/*.html',
     js: './src/**/*.js',
+    images: './src/images/*',
     css: [
       'node_modules/bootstrap/dist/css/bootstrap.min.css',
       'node_modules/bootstrap/dist/css/bootstrap-theme.min.css'
@@ -72,6 +73,14 @@ gulp.task('html', function(){
     .pipe( connect.reload() ) // reload the page
 });
 
+gulp.task('images', function(){
+
+  gulp.src(config.paths.images)
+    .pipe(gulp.dest(config.paths.dist+'/images'))
+    .pipe(connect.reload())
+
+});
+
 gulp.task('js', function(){
   console.log('js task runnning')
   browserify(config.paths.mainJs)
@@ -101,5 +110,5 @@ gulp.task('watch', function(){
   gulp.watch(config.paths.js, ['js']);
 });
 
-gulp.task('default', ['html', 'connect', 'css', 'watch','js','lint']) 
+gulp.task('default', ['html', 'connect', 'images',  'css', 'watch','js','lint']) 
   // gulp will run 'html', 'open', and 'watch' at when 'gulp' is typed in command line

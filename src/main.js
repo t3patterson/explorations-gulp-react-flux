@@ -1,8 +1,10 @@
 // put jQuery in global namespace
 $ = jQuery = require('jquery');
-var homepage = require('./components/homepage.js');
+var React = require('react');
+var Router = require('react-router');
 
-var App = console.log('Hi from browserify');
+var appRoutes = require('./routes.js');
 
-
-module.exports = App;
+Router.run(appRoutes, function(Handler){
+  React.render(<Handler/>, document.querySelector('.container'));
+})
