@@ -32282,15 +32282,17 @@ var Header = React.createClass({displayName: "Header",
         React.createElement("hr", null), 
         React.createElement("ul", {className: "nav navbar-nav"}, 
           React.createElement("li", null, React.createElement(Link, {to: "app"}, "Home")), 
-          React.createElement("li", null, React.createElement("a", {href: "/#/about"}, "About")), 
-          React.createElement("li", null, React.createElement("a", {href: "/#/authors"}, "Authors"))
+          React.createElement("li", null, React.createElement(Link, {to: "about"}, "About Us")), 
+          React.createElement("li", null, React.createElement(Link, {to: "authors"}, "Authors List"))
         )
       )
     )
   }
 })
 
-// NOTE: <Link to=«name»
+// NOTE: <Link> component
+// (1) <Link to= « name » >
+// (2) `name` was declared in <Route>
 
 
 module.exports = Header
@@ -32314,6 +32316,26 @@ var Home = React.createClass({displayName: "Home",
 module.exports = Home
 
 },{"react":199}],207:[function(require,module,exports){
+"use strict";
+
+var React = require('react');
+var Link = require('react-router').Link
+
+var Home = React.createClass({displayName: "Home",
+  render: function(){
+    return(
+      React.createElement("div", null, 
+        React.createElement("h2", null, "Page Not Found"), 
+        React.createElement("p", null, "Maybe go somewhere else on the site"), 
+        React.createElement(Link, {to: "app", className: "btn btn-primary"}, " Home ")
+      )
+      )
+  }
+})
+
+module.exports = Home
+
+},{"react":199,"react-router":29}],208:[function(require,module,exports){
 /*eslint-disable strict*/
 
 // put jQuery in global namespace
@@ -32325,34 +32347,43 @@ var Router = require('react-router');
 
 var appRoutes = require('./routes.js');
 
-Router.run(appRoutes, function(Handler){
+Router.run(appRoutes, Router.HistoryLocation, function(Handler){
   React.render(React.createElement(Handler, null), document.querySelector('.container'));
 })
 
-},{"./routes.js":208,"jquery":3,"react":199,"react-router":29}],208:[function(require,module,exports){
+},{"./routes.js":209,"jquery":3,"react":199,"react-router":29}],209:[function(require,module,exports){
 "use strict"
 var React = require('react');
 //React-Router
 var Router = require('react-router');
 var DefaultRoute = Router.DefaultRoute;
 var Route = Router.Route;
+var NotFoundRoute = Router.NotFoundRoute;
+
+var Redirect = Router.Redirect;
+
 
 //Components
-var App = require('./components/app.js')
+var App = require('./components/app.js');
+var NotFoundPage = require('./components/not_found_page.js');
+
 var HomeView = require('./components/home_page.js');
 var AboutView = require('./components/about/about_page.js');
 var AuthorsView = require('./components/authors/authors_page.js');
-
 
 
 var routes = (
   React.createElement(Route, {name: "app", path: "/", handler: App}, 
     React.createElement(DefaultRoute, {handler: HomeView}), 
     React.createElement(Route, {name: "about", handler: AboutView}), 
-    React.createElement(Route, {name: "authors", handler: AuthorsView})
+    React.createElement(Route, {name: "authors", handler: AuthorsView}), 
+    React.createElement(NotFoundRoute, {handler: NotFoundPage}), 
+    React.createElement(Redirect, {from: "about-us", to: "about"}), 
+    React.createElement(Redirect, {from: "about/*", to: "about"}), 
+    React.createElement(Redirect, {from: "awthurs", to: "authors"})
   )
 );
 
 module.exports = routes;
 
-},{"./components/about/about_page.js":201,"./components/app.js":202,"./components/authors/authors_page.js":204,"./components/home_page.js":206,"react":199,"react-router":29}]},{},[207]);
+},{"./components/about/about_page.js":201,"./components/app.js":202,"./components/authors/authors_page.js":204,"./components/home_page.js":206,"./components/not_found_page.js":207,"react":199,"react-router":29}]},{},[208]);

@@ -61,3 +61,9 @@ Router.run(appRoutes, function(Handler){
 })
 
 ```
+
+##Using `Link` from React-Router to normalize links
+
+##Using RouteNotFound from React-Router
+
+##Using Redirect from React-Router

@@ -9,6 +9,6 @@ var Router = require('react-router');
 
 var appRoutes = require('./routes.js');
 
-Router.run(appRoutes, function(Handler){
+Router.run(appRoutes, Router.HistoryLocation, function(Handler){
   React.render(<Handler/>, document.querySelector('.container'));
 })

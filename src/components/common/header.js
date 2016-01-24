@@ -17,15 +17,17 @@ var Header = React.createClass({
         <hr/>
         <ul className="nav navbar-nav">
           <li><Link to="app">Home</Link></li>
-          <li><a href="/#/about">About</a></li>
-          <li><a href="/#/authors">Authors</a></li>
+          <li><Link to="about">About Us</Link></li>
+          <li><Link to="authors">Authors List</Link></li>
         </ul>
       </nav>
     )
   }
 })
 
-// NOTE: <Link to=«name»
+// NOTE: <Link> component
+// (1) <Link to= « name » >
+// (2) `name` was declared in <Route>
 
 
 module.exports = Header
