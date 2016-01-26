@@ -14,11 +14,11 @@ var AuthorsList = React.createClass({
         </td>
         
         <td>
-          <a href={auth.id}> {auth.id} </a>
+          <a href={auth.name_id}> {auth.name_id} </a>
         </td>
 
         <td>
-          {auth.name}
+          {auth.firstName + " " + auth.lastName}
         </td>
       </tr>
     );

@@ -1,9 +1,9 @@
 var React = require('react')
 
 var NewAuthorsForm = React.createClass({
-    render: function(){
+  render: function(){
     return (
-      <form>
+      <form onSubmit={this.props.onSave}>
         
         <label htmlFor="firstName">Name Name</label>
         <input type= "text"
@@ -24,6 +24,10 @@ var NewAuthorsForm = React.createClass({
           defaultValue= ""
         />
         <br/>
+
+        <input type="submit"
+          className="btn btn-default"
+          value="Submit"/>
 
       </form>
     )

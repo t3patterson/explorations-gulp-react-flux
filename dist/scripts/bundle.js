@@ -32183,9 +32183,9 @@ module.exports = App
 var React = require('react')
 
 var NewAuthorsForm = React.createClass({displayName: "NewAuthorsForm",
-    render: function(){
+  render: function(){
     return (
-      React.createElement("form", null, 
+      React.createElement("form", {onSubmit: this.props.onSave}, 
         
         React.createElement("label", {htmlFor: "firstName"}, "Name Name"), 
         React.createElement("input", {type: "text", 
@@ -32205,7 +32205,11 @@ var NewAuthorsForm = React.createClass({displayName: "NewAuthorsForm",
           ref: "lastName", 
           defaultValue: ""}
         ), 
-        React.createElement("br", null)
+        React.createElement("br", null), 
+
+        React.createElement("input", {type: "submit", 
+          className: "btn btn-default", 
+          value: "Submit"})
 
       )
     )
@@ -32231,11 +32235,11 @@ var AuthorsList = React.createClass({displayName: "AuthorsList",
         ), 
         
         React.createElement("td", null, 
-          React.createElement("a", {href: auth.id}, " ", auth.id, " ")
+          React.createElement("a", {href: auth.name_id}, " ", auth.name_id, " ")
         ), 
 
         React.createElement("td", null, 
-          auth.name
+          auth.firstName + " " + auth.lastName
         )
       )
     );
@@ -32266,6 +32270,9 @@ var React = require('react')
 var AuthorAPI = require('../../_API.js');
 var AuthorsList = require('./_table_component.js')
 
+
+
+
 var AuthorsPage = React.createClass({displayName: "AuthorsPage",
   
   getInitialState: function(){
@@ -32276,11 +32283,17 @@ var AuthorsPage = React.createClass({displayName: "AuthorsPage",
 
   componentDidMount: function(){
     if( this.isMounted() ){
-      var activeAuthors = AuthorAPI.getActiveAuthors();
-
-      this.setState({
-        authors: activeAuthors
-      });
+      $.ajax(
+        'https://api.parse.com/1/classes/authors',
+        {
+          headers: { 
+            'X-Parse-Application-Id': 'gGt3i515AVidNfMcYL3PfQOInNcYZ5tDdAKJrYWF',
+            'X-Parse-REST-API-Key': 'VtD6G0eBUNKcaMh6SxmcPwuvGMCZBzxFuKlyEeoI'
+          },
+        }
+      ).then(function(d){
+        this.setState({authors: d.results});
+      }.bind(this))
     }
   },
 
@@ -32300,17 +32313,37 @@ module.exports = AuthorsPage;
 var React = require('react')
 var NewAuthorForm = require('./_form_new_authors.js');
 
-
 var NewAuthorPage = React.createClass({displayName: "NewAuthorPage",
-  
+
+  _onSave: function(e){
+    e.preventDefault();
+    console.log(e.target);
+    console.log(e.target.firstName.value);
+
+    $.ajax({
+        url: 'https://api.parse.com/1/classes/authors',
+        type: 'post',
+        headers: { 
+          'X-Parse-Application-Id': 'gGt3i515AVidNfMcYL3PfQOInNcYZ5tDdAKJrYWF',
+          'X-Parse-REST-API-Key': 'VtD6G0eBUNKcaMh6SxmcPwuvGMCZBzxFuKlyEeoI'
+        },
+        contentType : "application/json", 
+        data: JSON.stringify({
+          "firstName": e.target.firstName.value,
+          "lastName": e.target.lastName.value,
+          "name_id": e.target.firstName.value.toLowerCase() + "-" + e.target.lastName.value.toLowerCase()
+        })
+      }).then(function(d){
+        console.log(d)
+      }.bind(this))
+
+  },
 
   render: function(){
     return (
       React.createElement("div", null, 
         React.createElement("h2", null, "Add Author Info"), 
-        React.createElement("div", {className: "col-xs-8 col-xs-offset-2"}, 
-          React.createElement(NewAuthorForm, null)
-        )
+        React.createElement(NewAuthorForm, {onSave: this._onSave})
       )
     )
   }
