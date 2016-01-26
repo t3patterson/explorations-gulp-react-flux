@@ -5,9 +5,9 @@ var NewAuthorPage = React.createClass({
 
   _onSave: function(e){
     e.preventDefault();
-    console.log(e.target);
 
     var form = e.target
+    
     $.ajax({
 
         url: 'https://api.parse.com/1/classes/authors',

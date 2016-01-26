@@ -32097,40 +32097,53 @@ module.exports = require('./lib/React');
 },{"./lib/React":72}],200:[function(require,module,exports){
 "use strict"
 
-var data = [
-  {
-    name: "Travis Hubbard",
-    id: "travis-hubbard",
-    active: true
-  },
-  {
-    name: "Justin Richards",
-    id: "justin-richards",
-    active: true
-  },
-  {
-    name: "Susan Wingfield",
-    id: "susan-wingfield",
-    active: false
-  },
-  {
-    name: "Tommy Crimey",
-    id: "tommy-crimey",
-    active: true
+function APIConstructor(){
+
+  function requestType(httpType){
+    var httpType = httpType,
+        
+        apiParams = {
+          url: 'https://api.parse.com/1/classes/authors',
+          headers: {
+            'X-Parse-Application-Id': 'gGt3i515AVidNfMcYL3PfQOInNcYZ5tDdAKJrYWF',
+            'X-Parse-REST-API-Key': 'VtD6G0eBUNKcaMh6SxmcPwuvGMCZBzxFuKlyEeoI'
+        }
+    }
+    
+    var apiRequestFn = function(dataObject){
+      
+      var settings = apiParams;
+
+      switch (httpType) {
+        case ('get'):
+          settings.type = 'get'
+          break;
+        case ('post'):
+          settings.type = 'post';
+          settings.contentType = 'application/json';
+          settings.data = JSON.stringify(dataObject);
+          break;
+      }
+
+      return $.ajax(settings)
+    }
+
+    return apiRequestFn
   }
-];
 
-function APIConstructor(d){
-  this.authorsList = d
+  return {
+    get: requestType('get'),
+    post: requestType('post')
+  }
 }
 
-APIConstructor.prototype.getActiveAuthors = function(){
-  return this.authorsList.filter(function(aut){
-    return aut.active 
-  })
-}
+var API = new APIConstructor();
 
-var API = new APIConstructor(data);
+API.get().then(function(data){
+  console.log('FROM API MODULE')
+  console.log(data)
+  console.log('-------------')
+})
 
 module.exports =  API
 
@@ -32316,9 +32329,9 @@ var NewAuthorPage = React.createClass({displayName: "NewAuthorPage",
 
   _onSave: function(e){
     e.preventDefault();
-    console.log(e.target);
 
     var form = e.target
+    
     $.ajax({
 
         url: 'https://api.parse.com/1/classes/authors',
