@@ -1,4 +1,4 @@
-var React = require('react')
+var React = require('react');
 var NewAuthorForm = require('./_form_new_authors.js');
 
 var NewAuthorPage = React.createClass({
@@ -6,9 +6,10 @@ var NewAuthorPage = React.createClass({
   _onSave: function(e){
     e.preventDefault();
     console.log(e.target);
-    console.log(e.target.firstName.value);
 
+    var form = e.target
     $.ajax({
+
         url: 'https://api.parse.com/1/classes/authors',
         type: 'post',
         headers: { 
@@ -17,12 +18,14 @@ var NewAuthorPage = React.createClass({
         },
         contentType : "application/json", 
         data: JSON.stringify({
-          "firstName": e.target.firstName.value,
-          "lastName": e.target.lastName.value,
-          "name_id": e.target.firstName.value.toLowerCase() + "-" + e.target.lastName.value.toLowerCase()
+          "firstName": form.firstName.value,
+          "lastName": form.lastName.value,
+          "name_id": form.firstName.value.toLowerCase() + "-" + form.lastName.value.toLowerCase()
         })
+
       }).then(function(d){
-        console.log(d)
+        form.firstName.value = '';
+        form.lastName.value = '';
       }.bind(this))
 
   },

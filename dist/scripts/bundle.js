@@ -32283,15 +32283,14 @@ var AuthorsPage = React.createClass({displayName: "AuthorsPage",
 
   componentDidMount: function(){
     if( this.isMounted() ){
-      $.ajax(
-        'https://api.parse.com/1/classes/authors',
-        {
-          headers: { 
-            'X-Parse-Application-Id': 'gGt3i515AVidNfMcYL3PfQOInNcYZ5tDdAKJrYWF',
-            'X-Parse-REST-API-Key': 'VtD6G0eBUNKcaMh6SxmcPwuvGMCZBzxFuKlyEeoI'
-          },
-        }
-      ).then(function(d){
+      $.ajax({
+        url: 'https://api.parse.com/1/classes/authors',
+        type: 'get',
+        headers: { 
+          'X-Parse-Application-Id': 'gGt3i515AVidNfMcYL3PfQOInNcYZ5tDdAKJrYWF',
+          'X-Parse-REST-API-Key': 'VtD6G0eBUNKcaMh6SxmcPwuvGMCZBzxFuKlyEeoI'
+        }, 
+      }).then(function(d){
         this.setState({authors: d.results});
       }.bind(this))
     }
@@ -32310,7 +32309,7 @@ var AuthorsPage = React.createClass({displayName: "AuthorsPage",
 module.exports = AuthorsPage;
 
 },{"../../_API.js":200,"./_table_component.js":204,"react":199}],206:[function(require,module,exports){
-var React = require('react')
+var React = require('react');
 var NewAuthorForm = require('./_form_new_authors.js');
 
 var NewAuthorPage = React.createClass({displayName: "NewAuthorPage",
@@ -32318,9 +32317,10 @@ var NewAuthorPage = React.createClass({displayName: "NewAuthorPage",
   _onSave: function(e){
     e.preventDefault();
     console.log(e.target);
-    console.log(e.target.firstName.value);
 
+    var form = e.target
     $.ajax({
+
         url: 'https://api.parse.com/1/classes/authors',
         type: 'post',
         headers: { 
@@ -32329,12 +32329,14 @@ var NewAuthorPage = React.createClass({displayName: "NewAuthorPage",
         },
         contentType : "application/json", 
         data: JSON.stringify({
-          "firstName": e.target.firstName.value,
-          "lastName": e.target.lastName.value,
-          "name_id": e.target.firstName.value.toLowerCase() + "-" + e.target.lastName.value.toLowerCase()
+          "firstName": form.firstName.value,
+          "lastName": form.lastName.value,
+          "name_id": form.firstName.value.toLowerCase() + "-" + form.lastName.value.toLowerCase()
         })
+
       }).then(function(d){
-        console.log(d)
+        form.firstName.value = '';
+        form.lastName.value = '';
       }.bind(this))
 
   },
@@ -32372,7 +32374,8 @@ var Header = React.createClass({displayName: "Header",
         React.createElement("ul", {className: "nav navbar-nav"}, 
           React.createElement("li", null, React.createElement(Link, {to: "app"}, "Home")), 
           React.createElement("li", null, React.createElement(Link, {to: "about"}, "About Us")), 
-          React.createElement("li", null, React.createElement(Link, {to: "authors"}, "Authors List"))
+          React.createElement("li", null, React.createElement(Link, {to: "authors"}, "Authors List")), 
+          React.createElement("li", null, React.createElement(Link, {to: "authors-new"}, "Add New Author"))
         )
       )
     )

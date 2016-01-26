@@ -15,15 +15,14 @@ var AuthorsPage = React.createClass({
 
   componentDidMount: function(){
     if( this.isMounted() ){
-      $.ajax(
-        'https://api.parse.com/1/classes/authors',
-        {
-          headers: { 
-            'X-Parse-Application-Id': 'gGt3i515AVidNfMcYL3PfQOInNcYZ5tDdAKJrYWF',
-            'X-Parse-REST-API-Key': 'VtD6G0eBUNKcaMh6SxmcPwuvGMCZBzxFuKlyEeoI'
-          },
-        }
-      ).then(function(d){
+      $.ajax({
+        url: 'https://api.parse.com/1/classes/authors',
+        type: 'get',
+        headers: { 
+          'X-Parse-Application-Id': 'gGt3i515AVidNfMcYL3PfQOInNcYZ5tDdAKJrYWF',
+          'X-Parse-REST-API-Key': 'VtD6G0eBUNKcaMh6SxmcPwuvGMCZBzxFuKlyEeoI'
+        }, 
+      }).then(function(d){
         this.setState({authors: d.results});
       }.bind(this))
     }
