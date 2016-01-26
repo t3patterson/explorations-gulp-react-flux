@@ -14,10 +14,12 @@ var gulp = require('gulp');
 var connect = require('gulp-connect'); // runs a local dev server
 var open = require('gulp-open'); // Open a url in the web browser
 var browserify = require('browserify');
+
 var reactify = require('reactify');
 var source = require('vinyl-source-stream');
 var concat = require('gulp-concat');
-var esLint = require('gulp-eslint');
+var esLint = require('gulp-eslint'); 
+var browserSync = require('browser-sync').create();
 
 
 //Setup Configuration Options
@@ -52,9 +54,14 @@ gulp.task('connect', function(){
     root: ['dist'],
     port: config.port,
     base: config.devBaseUrl,
-    livereload: true
+    livereload: true,
+    fallback: 'dist/index.html' 
+    // add this so that the fallback index.html is rendered
   })
 });
+
+
+
 
 //'open' task will run after the 'connect' task
 gulp.task('open', ['connect'], function(){

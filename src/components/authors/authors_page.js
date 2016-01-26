@@ -1,6 +1,5 @@
 var React = require('react')
 var AuthorAPI = require('../../_API.js');
-
 var AuthorsList = require('./_table_component.js')
 
 var AuthorsPage = React.createClass({

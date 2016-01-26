@@ -32179,7 +32179,42 @@ var App = React.createClass({displayName: "App",
 
 module.exports = App
 
-},{"./common/header.js":205,"react":199,"react-router":29}],203:[function(require,module,exports){
+},{"./common/header.js":207,"react":199,"react-router":29}],203:[function(require,module,exports){
+var React = require('react')
+
+var NewAuthorsForm = React.createClass({displayName: "NewAuthorsForm",
+    render: function(){
+    return (
+      React.createElement("form", null, 
+        
+        React.createElement("label", {htmlFor: "firstName"}, "Name Name"), 
+        React.createElement("input", {type: "text", 
+          name: "firstName", 
+          className: "form-control", 
+          placeholder: "First Name", 
+          ref: "firstName", 
+          defaultValue: ""}
+        ), 
+        React.createElement("br", null), 
+        
+        React.createElement("label", {htmlFor: "lastName"}, "Last Name"), 
+        React.createElement("input", {type: "text", 
+          name: "lastName", 
+          className: "form-control", 
+          placeholder: "Last Name", 
+          ref: "lastName", 
+          defaultValue: ""}
+        ), 
+        React.createElement("br", null)
+
+      )
+    )
+  }
+})
+
+module.exports = NewAuthorsForm;
+
+},{"react":199}],204:[function(require,module,exports){
 var React = require('react');
 
 var AuthorsList = React.createClass({displayName: "AuthorsList",
@@ -32226,10 +32261,9 @@ var AuthorsList = React.createClass({displayName: "AuthorsList",
 
 module.exports = AuthorsList;
 
-},{"react":199}],204:[function(require,module,exports){
+},{"react":199}],205:[function(require,module,exports){
 var React = require('react')
 var AuthorAPI = require('../../_API.js');
-
 var AuthorsList = require('./_table_component.js')
 
 var AuthorsPage = React.createClass({displayName: "AuthorsPage",
@@ -32262,7 +32296,29 @@ var AuthorsPage = React.createClass({displayName: "AuthorsPage",
 
 module.exports = AuthorsPage;
 
-},{"../../_API.js":200,"./_table_component.js":203,"react":199}],205:[function(require,module,exports){
+},{"../../_API.js":200,"./_table_component.js":204,"react":199}],206:[function(require,module,exports){
+var React = require('react')
+var NewAuthorForm = require('./_form_new_authors.js');
+
+
+var NewAuthorPage = React.createClass({displayName: "NewAuthorPage",
+  
+
+  render: function(){
+    return (
+      React.createElement("div", null, 
+        React.createElement("h2", null, "Add Author Info"), 
+        React.createElement("div", {className: "col-xs-8 col-xs-offset-2"}, 
+          React.createElement(NewAuthorForm, null)
+        )
+      )
+    )
+  }
+})
+
+module.exports = NewAuthorPage;
+
+},{"./_form_new_authors.js":203,"react":199}],207:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -32297,7 +32353,7 @@ var Header = React.createClass({displayName: "Header",
 
 module.exports = Header
 
-},{"react":199,"react-router":29}],206:[function(require,module,exports){
+},{"react":199,"react-router":29}],208:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -32315,7 +32371,7 @@ var Home = React.createClass({displayName: "Home",
 
 module.exports = Home
 
-},{"react":199}],207:[function(require,module,exports){
+},{"react":199}],209:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -32335,27 +32391,29 @@ var Home = React.createClass({displayName: "Home",
 
 module.exports = Home
 
-},{"react":199,"react-router":29}],208:[function(require,module,exports){
+},{"react":199,"react-router":29}],210:[function(require,module,exports){
 /*eslint-disable strict*/
 
 // put jQuery in global namespace
 $ = jQuery = require('jquery');
-
 
 var React = require('react');
 var Router = require('react-router');
 
 var appRoutes = require('./routes.js');
 
+Parse.initialize("gGt3i515AVidNfMcYL3PfQOInNcYZ5tDdAKJrYWF", "6kxwYiFzzXFzipipuxLNsb5qCLTLCIhV7A46J5Od");
+
 Router.run(appRoutes, Router.HistoryLocation, function(Handler){
   React.render(React.createElement(Handler, null), document.querySelector('.container'));
 })
 
-},{"./routes.js":209,"jquery":3,"react":199,"react-router":29}],209:[function(require,module,exports){
+},{"./routes.js":211,"jquery":3,"react":199,"react-router":29}],211:[function(require,module,exports){
 "use strict"
 var React = require('react');
 //React-Router
 var Router = require('react-router');
+
 var DefaultRoute = Router.DefaultRoute;
 var Route = Router.Route;
 var NotFoundRoute = Router.NotFoundRoute;
@@ -32370,13 +32428,18 @@ var NotFoundPage = require('./components/not_found_page.js');
 var HomeView = require('./components/home_page.js');
 var AboutView = require('./components/about/about_page.js');
 var AuthorsView = require('./components/authors/authors_page.js');
+var NewAuthorView = require ('./components/authors/new_author_page.js');
 
+console.log('say hi');
 
 var routes = (
   React.createElement(Route, {name: "app", path: "/", handler: App}, 
     React.createElement(DefaultRoute, {handler: HomeView}), 
+    
     React.createElement(Route, {name: "about", handler: AboutView}), 
-    React.createElement(Route, {name: "authors", handler: AuthorsView}), 
+    React.createElement(Route, {name: "authors", path: "/authors", handler: AuthorsView}), 
+    React.createElement(Route, {name: "authors-new", path: "/authors/new", handler: NewAuthorView}), 
+
     React.createElement(NotFoundRoute, {handler: NotFoundPage}), 
     React.createElement(Redirect, {from: "about-us", to: "about"}), 
     React.createElement(Redirect, {from: "about/*", to: "about"}), 
@@ -32386,4 +32449,4 @@ var routes = (
 
 module.exports = routes;
 
-},{"./components/about/about_page.js":201,"./components/app.js":202,"./components/authors/authors_page.js":204,"./components/home_page.js":206,"./components/not_found_page.js":207,"react":199,"react-router":29}]},{},[208]);
+},{"./components/about/about_page.js":201,"./components/app.js":202,"./components/authors/authors_page.js":205,"./components/authors/new_author_page.js":206,"./components/home_page.js":208,"./components/not_found_page.js":209,"react":199,"react-router":29}]},{},[210]);
