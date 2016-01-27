@@ -1,5 +1,6 @@
 var React = require('react');
 var NewAuthorForm = require('./_form_new_authors.js');
+var API = require('../../_API.js');
 
 var NewAuthorPage = React.createClass({
 
@@ -8,22 +9,13 @@ var NewAuthorPage = React.createClass({
 
     var form = e.target
     
-    $.ajax({
+    var inputData = {
+      firstName : form.firstName.value,
+      lastName  : form.lastName.value,
+      name_id   : form.firstName.value.toLowerCase() + "-" + form.lastName.value.toLowerCase()
+    }
 
-        url: 'https://api.parse.com/1/classes/authors',
-        type: 'post',
-        headers: { 
-          'X-Parse-Application-Id': 'gGt3i515AVidNfMcYL3PfQOInNcYZ5tDdAKJrYWF',
-          'X-Parse-REST-API-Key': 'VtD6G0eBUNKcaMh6SxmcPwuvGMCZBzxFuKlyEeoI'
-        },
-        contentType : "application/json", 
-        data: JSON.stringify({
-          "firstName": form.firstName.value,
-          "lastName": form.lastName.value,
-          "name_id": form.firstName.value.toLowerCase() + "-" + form.lastName.value.toLowerCase()
-        })
-
-      }).then(function(d){
+    API.post(inputData).then(function(d){
         form.firstName.value = '';
         form.lastName.value = '';
       }.bind(this))

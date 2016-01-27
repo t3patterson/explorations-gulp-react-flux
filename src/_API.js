@@ -3,15 +3,14 @@
 function APIConstructor(){
 
   function requestType(httpType){
-    var httpType = httpType,
-        
+    var httpType  = httpType,
         apiParams = {
           url: 'https://api.parse.com/1/classes/authors',
           headers: {
             'X-Parse-Application-Id': 'gGt3i515AVidNfMcYL3PfQOInNcYZ5tDdAKJrYWF',
             'X-Parse-REST-API-Key': 'VtD6G0eBUNKcaMh6SxmcPwuvGMCZBzxFuKlyEeoI'
+          }
         }
-    }
     
     var apiRequestFn = function(dataObject){
       
@@ -30,7 +29,7 @@ function APIConstructor(){
 
       return $.ajax(settings)
     }
-
+    
     return apiRequestFn
   }
 

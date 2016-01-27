@@ -18,8 +18,8 @@ var browserify = require('browserify');
 var reactify = require('reactify');
 var source = require('vinyl-source-stream');
 var concat = require('gulp-concat');
-var esLint = require('gulp-eslint'); 
-var browserSync = require('browser-sync').create();
+var esLint = require('gulp-eslint');
+var scss = require('gulp-scss');
 
 
 //Setup Configuration Options
@@ -30,9 +30,11 @@ var config = {
     html: './src/*.html',
     js: './src/**/*.js',
     images: './src/images/*',
-    css: [
-      'node_modules/bootstrap/dist/css/bootstrap.min.css',
-      'node_modules/bootstrap/dist/css/bootstrap-theme.min.css'
+    scss: './src/scss/**/*.scss',
+    cssIncludes: [
+      './node_modules/bootstrap/dist/css/bootstrap.min.css',
+      './node_modules/bootstrap/dist/css/bootstrap-theme.min.css',
+      './dist/css/styles.css'
     ],
     dist: './dist',
     mainJs: './src/main.js'
@@ -59,7 +61,6 @@ gulp.task('connect', function(){
     // add this so that the fallback index.html is rendered
   })
 });
-
 
 
 
@@ -99,14 +100,22 @@ gulp.task('js', function(){
     .pipe(connect.reload());
 });
 
-gulp.task('css', function(){
-  gulp.src(config.paths.css)
+gulp.task('scss', function(){
+  console.log('scss executed, bits!')
+  gulp.src(config.paths.scss)
+    .pipe( scss() )
+    .pipe( gulp.dest(config.paths.dist+"/css") )
+})
+
+gulp.task('bundle-css', function(){
+  console.log('CSS Executed, bits')
+  gulp.src(config.paths.cssIncludes)
     .pipe(concat('bundle.css'))
     .pipe(gulp.dest(config.paths.dist + "/css"))
     .pipe(connect.reload());
 })
 
-gulp.task('lint',function(){
+gulp.task('js-lint',function(){
   return gulp.src(config.paths.js)
     .pipe(esLint({config: 'eslint.config.json'}))
     .pipe( esLint.format() )
@@ -115,7 +124,11 @@ gulp.task('lint',function(){
 gulp.task('watch', function(){
   gulp.watch(config.paths.html, ['html']);
   gulp.watch(config.paths.js, ['js']);
+  gulp.watch(config.paths.scss, function(){
+    gulp.run(['scss','bundle-css'])
+  })
+
 });
 
-gulp.task('default', ['html', 'connect', 'images',  'css', 'watch','js','lint']) 
+gulp.task('default', ['html', 'images', 'scss', 'bundle-css', 'js', 'watch', 'js-lint', 'connect',]) 
   // gulp will run 'html', 'open', and 'watch' at when 'gulp' is typed in command line
