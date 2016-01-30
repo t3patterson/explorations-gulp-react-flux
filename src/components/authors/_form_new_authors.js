@@ -1,6 +1,16 @@
 var React = require('react')
 
 var NewAuthorsForm = React.createClass({
+  
+  showElOnError(msg){
+    if (msg) {
+      return <div>
+        <br/>
+        <div className="alert alert-danger" role="alert">{msg}</div>
+      </div>
+    }
+  },
+
   render: function(){
     return (
       <form onSubmit={this.props.onSave}>
@@ -13,6 +23,8 @@ var NewAuthorsForm = React.createClass({
           ref="firstName"
           defaultValue= ""
         />
+        { this.showElOnError(this.props.errors.firstName) }        
+        
         <br/>
         
         <label htmlFor="lastName">Last Name</label>
@@ -23,6 +35,7 @@ var NewAuthorsForm = React.createClass({
           ref="lastName"
           defaultValue= ""
         />
+        { this.showElOnError(this.props.errors.lastName) }        
         <br/>
 
         <input type="submit"

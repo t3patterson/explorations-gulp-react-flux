@@ -32196,6 +32196,16 @@ module.exports = App
 var React = require('react')
 
 var NewAuthorsForm = React.createClass({displayName: "NewAuthorsForm",
+  
+  showElOnError(msg){
+    if (msg) {
+      return React.createElement("div", null, 
+        React.createElement("br", null), 
+        React.createElement("div", {className: "alert alert-danger", role: "alert"}, msg)
+      )
+    }
+  },
+
   render: function(){
     return (
       React.createElement("form", {onSubmit: this.props.onSave}, 
@@ -32208,6 +32218,8 @@ var NewAuthorsForm = React.createClass({displayName: "NewAuthorsForm",
           ref: "firstName", 
           defaultValue: ""}
         ), 
+         this.showElOnError(this.props.errors.firstName), 
+        
         React.createElement("br", null), 
         
         React.createElement("label", {htmlFor: "lastName"}, "Last Name"), 
@@ -32218,6 +32230,7 @@ var NewAuthorsForm = React.createClass({displayName: "NewAuthorsForm",
           ref: "lastName", 
           defaultValue: ""}
         ), 
+         this.showElOnError(this.props.errors.lastName), 
         React.createElement("br", null), 
 
         React.createElement("input", {type: "submit", 
@@ -32325,31 +32338,74 @@ var NewAuthorPage = React.createClass({displayName: "NewAuthorPage",
   mixins: [
     Router.Navigation
   ],
-  
+
+  getInitialState: function(){
+    return {
+      errorMessages: {
+        firstName: null,
+        lastName: null
+      }
+    }
+  },
+
+
+  _isFormValid: function(userInput){
+    var formIsValid = true
+    var errorProps = JSON.parse(JSON.stringify(this.state.errorMessages));
+
+    if ( userInput.firstName.length < 3){
+      formIsValid = false;
+      errorProps.firstName = 'First name must be longer than 3 characters';
+    } else {
+      errorProps.firstName = null
+    }
+
+    if ( userInput.lastName.length < 3){
+      formIsValid = false;
+      errorProps.lastName = 'Last name must be longer than 3 characters'
+    } else {
+      errorProps.lastName = null;
+    }
+
+    this.setState({
+      errorMessages: errorProps
+    });
+
+    console.log('IS FORM VALID?? ', formIsValid )
+    return formIsValid
+  },
+
   _onSave: function(e){
     e.preventDefault();
-
     var form = e.target
-    
-    var inputData = {
+    var userInputData = {
       firstName : form.firstName.value,
       lastName  : form.lastName.value,
       name_id   : form.firstName.value.toLowerCase() + "-" + form.lastName.value.toLowerCase()
     }
 
-    API.post(inputData).then(function(d){
-        form.firstName.value = '';
-        form.lastName.value = '';
-        this.transitionTo('authors')
-      }.bind(this))
+    if ( this._isFormValid(userInputData) ){
+      
+      this.setState({
+        errors: {
+          firstName: null,
+          lastName: null
+        }
+      });
 
+      API.post(userInputData).then(function(d){
+          form.firstName.value = '';
+          form.lastName.value = '';
+          this.transitionTo('authors')
+        }.bind(this))
+    } 
   },
 
   render: function(){
     return (
       React.createElement("div", null, 
         React.createElement("h2", null, "Add Author Info"), 
-        React.createElement(NewAuthorForm, {onSave: this._onSave})
+        React.createElement(NewAuthorForm, {onSave: this._onSave, errors: this.state.errorMessages})
       )
     )
   }
