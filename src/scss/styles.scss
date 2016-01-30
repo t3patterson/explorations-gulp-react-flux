@@ -1,9 +1,16 @@
-body {
-  background: orange;
-  co;lor: palegoldenrod;
+@import 'imported_stuff';
 
-  h1{
+body {
+  background: #aabb00;
+
+  h1 {
     font-size: 55px;
-    color: red;
+    color: #800000;
+    border: 2px #000080 solid;
   }
+
+  h3 {
+    color: #800080;
+  }
+
 }

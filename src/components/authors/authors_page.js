@@ -14,13 +14,10 @@ var AuthorsPage = React.createClass({
 
   componentDidMount: function(){
     if( this.isMounted() ){
-      
-
       API.get().then(function(d){
         this.setState({authors: d.results});
       }.bind(this))
-    
-
+  
     }
   },
 

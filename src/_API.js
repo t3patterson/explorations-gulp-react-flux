@@ -3,6 +3,7 @@
 function APIConstructor(){
 
   function requestType(httpType){
+    
     var httpType  = httpType,
         apiParams = {
           url: 'https://api.parse.com/1/classes/authors',

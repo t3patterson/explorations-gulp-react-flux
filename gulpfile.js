@@ -13,13 +13,15 @@
 var gulp = require('gulp');
 var connect = require('gulp-connect'); // runs a local dev server
 var open = require('gulp-open'); // Open a url in the web browser
-var browserify = require('browserify');
 
+var browserify = require('browserify');
 var reactify = require('reactify');
 var source = require('vinyl-source-stream');
+
 var concat = require('gulp-concat');
 var esLint = require('gulp-eslint');
 var scss = require('gulp-scss');
+var scsslint = require('gulp-scss-lint');
 
 
 //Setup Configuration Options
@@ -28,13 +30,12 @@ var config = {
   devBaseUrl: 'http://localhost',
   paths: {
     html: './src/*.html',
-    js: './src/**/*.js',
     images: './src/images/*',
+    js: './src/**/*.js',
     scss: './src/scss/**/*.scss',
-    cssIncludes: [
-      './node_modules/bootstrap/dist/css/bootstrap.min.css',
-      './node_modules/bootstrap/dist/css/bootstrap-theme.min.css',
-      './dist/css/styles.css'
+    cssBundleIncludes: [
+      './dist/css/includes/lib/bootstrap.css',
+      './dist/css/includes/styles.css'
     ],
     dist: './dist',
     mainJs: './src/main.js'
@@ -62,8 +63,6 @@ gulp.task('connect', function(){
   })
 });
 
-
-
 //'open' task will run after the 'connect' task
 gulp.task('open', ['connect'], function(){
   console.log( config.devBaseUrl + ":" + config.port + "/" )
@@ -90,30 +89,14 @@ gulp.task('images', function(){
 });
 
 gulp.task('js', function(){
-  console.log('js task runnning')
   browserify(config.paths.mainJs)
     .transform(reactify)
     .bundle()
     .on('error', console.error.bind(console))
-    .pipe(source('bundle.js'))
+    .pipe( source('bundle.js') )
     .pipe( gulp.dest(config.paths.dist+ '/scripts' ))
     .pipe(connect.reload());
 });
-
-gulp.task('scss', function(){
-  console.log('scss executed, bits!')
-  gulp.src(config.paths.scss)
-    .pipe( scss() )
-    .pipe( gulp.dest(config.paths.dist+"/css") )
-})
-
-gulp.task('bundle-css', function(){
-  console.log('CSS Executed, bits')
-  gulp.src(config.paths.cssIncludes)
-    .pipe(concat('bundle.css'))
-    .pipe(gulp.dest(config.paths.dist + "/css"))
-    .pipe(connect.reload());
-})
 
 gulp.task('js-lint',function(){
   return gulp.src(config.paths.js)
@@ -121,14 +104,37 @@ gulp.task('js-lint',function(){
     .pipe( esLint.format() )
 })
 
+gulp.task('scss', function(){
+  gulp.src(config.paths.scss)
+    .pipe( scss() )
+    .pipe( gulp.dest( config.paths.dist+"/css/includes" ) )
+})
+
+gulp.task('scss-lint', function(){
+  console.log("===================================")
+  console.log('----------   SCSS Lint  -----------')
+  console.log("===================================")
+  
+  return gulp.src(config.paths.scss)
+      .pipe( scsslint() );
+})
+
+gulp.task('bundle-css', ['scss','scss-lint'] ,function(){
+  console.log('====================');
+  console.log('css files bundling.....');
+  console.log('====================');
+  setTimeout(function(){gulp.src(config.paths.cssBundleIncludes)
+    .pipe(concat('bundle.css'))
+    .pipe(gulp.dest(config.paths.dist + "/css"))
+    .pipe(connect.reload());
+    },1000)
+})
+
 gulp.task('watch', function(){
   gulp.watch(config.paths.html, ['html']);
   gulp.watch(config.paths.js, ['js']);
-  gulp.watch(config.paths.scss, function(){
-    gulp.run(['scss','bundle-css'])
-  })
-
+  gulp.watch(config.paths.scss,['scss','scss-lint', 'bundle-css'])
 });
 
-gulp.task('default', ['html', 'images', 'scss', 'bundle-css', 'js', 'watch', 'js-lint', 'connect',]) 
+gulp.task('default', ['html', 'images', 'scss', 'scss-lint', 'bundle-css', 'js', 'watch', 'js-lint', 'connect',]) 
   // gulp will run 'html', 'open', and 'watch' at when 'gulp' is typed in command line

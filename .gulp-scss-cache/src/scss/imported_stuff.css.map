@@ -1,0 +1,7 @@
+{
+"version": 3,
+"mappings": "AACE,cAAI;EACF,MAAM,EAAE,cAAc;;ACA1B,GAAI;EACF,UAAU,EAAE,OAAO",
+"sources": ["../../../src/scss/imported_of_imports.scss","../../../src/scss/imported_stuff.scss"],
+"names": [],
+"file": "imported_stuff.css"
+}

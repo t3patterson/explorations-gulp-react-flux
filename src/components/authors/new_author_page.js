@@ -1,4 +1,6 @@
 var React = require('react');
+var Router = require('react-router')
+
 var NewAuthorForm = require('./_form_new_authors.js');
 var API = require('../../_API.js');
 

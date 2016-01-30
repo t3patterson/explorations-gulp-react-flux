@@ -32100,6 +32100,7 @@ module.exports = require('./lib/React');
 function APIConstructor(){
 
   function requestType(httpType){
+    
     var httpType  = httpType,
         apiParams = {
           url: 'https://api.parse.com/1/classes/authors',
@@ -32294,13 +32295,10 @@ var AuthorsPage = React.createClass({displayName: "AuthorsPage",
 
   componentDidMount: function(){
     if( this.isMounted() ){
-      
-
       API.get().then(function(d){
         this.setState({authors: d.results});
       }.bind(this))
-    
-
+  
     }
   },
 
@@ -32318,6 +32316,8 @@ module.exports = AuthorsPage;
 
 },{"../../_API.js":200,"./_table_component.js":204,"react":199}],206:[function(require,module,exports){
 var React = require('react');
+var Router = require('react-router')
+
 var NewAuthorForm = require('./_form_new_authors.js');
 var API = require('../../_API.js');
 
@@ -32353,7 +32353,7 @@ var NewAuthorPage = React.createClass({displayName: "NewAuthorPage",
 
 module.exports = NewAuthorPage;
 
-},{"../../_API.js":200,"./_form_new_authors.js":203,"react":199}],207:[function(require,module,exports){
+},{"../../_API.js":200,"./_form_new_authors.js":203,"react":199,"react-router":29}],207:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
