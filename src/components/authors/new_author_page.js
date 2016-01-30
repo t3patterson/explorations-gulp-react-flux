@@ -5,7 +5,10 @@ var NewAuthorForm = require('./_form_new_authors.js');
 var API = require('../../_API.js');
 
 var NewAuthorPage = React.createClass({
-
+  mixins: [
+    Router.Navigation
+  ],
+  
   _onSave: function(e){
     e.preventDefault();
 
@@ -20,6 +23,7 @@ var NewAuthorPage = React.createClass({
     API.post(inputData).then(function(d){
         form.firstName.value = '';
         form.lastName.value = '';
+        this.transitionTo('authors')
       }.bind(this))
 
   },
