@@ -1,7 +1,9 @@
 var React = require('react')
-var API = require('../../_API.js');
-var AuthorsList = require('./_table_component.js')
 
+var AuthorActions = require('../../actions/authorActions.js');
+var AuthorStore = require('../../stores/authorStore.js');
+
+var AuthorsList = require('./_table_component.js');
 
 
 var AuthorsPage = React.createClass({
@@ -12,13 +14,25 @@ var AuthorsPage = React.createClass({
     }
   },
 
+  //(1)
   componentDidMount: function(){
-    if( this.isMounted() ){
-      API.get().then(function(d){
-        this.setState({authors: d.results});
-      }.bind(this))
+      
+      console.log('authors_page.js mounted, bits');
+      console.log(AuthorStore.getAllAuthors());
+
+      this._onChange();
+      AuthorActions.fetchAuthorsFromDB();
   
-    }
+  },
+
+  _onChange: function(){
+    var self = this
+    AuthorStore.addChangeListener(function(){
+        console.log('changeListenerRuns')
+        console.log(AuthorStore.getAllAuthors())
+        self.setState({ authors: AuthorStore.getAllAuthors() });
+      }
+    )
   },
 
   render: function(){
