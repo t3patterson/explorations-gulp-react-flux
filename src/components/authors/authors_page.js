@@ -16,21 +16,23 @@ var AuthorsPage = React.createClass({
 
   //(1)
   componentDidMount: function(){
-      
       console.log('authors_page.js mounted, bits');
-      console.log(AuthorStore.getAllAuthors());
-
       this._onChange();
       AuthorActions.fetchAuthorsFromDB();
-  
+      
+  },
+
+  componentWillUnmount: function(){
+    console.log('component unmounted')
+    AuthorStore.removeChangeListener();
   },
 
   _onChange: function(){
     var self = this
     AuthorStore.addChangeListener(function(){
         console.log('changeListenerRuns')
-        console.log(AuthorStore.getAllAuthors())
-        self.setState({ authors: AuthorStore.getAllAuthors() });
+        console.log(AuthorStore.getAuthorsList())
+        self.setState({ authors: AuthorStore.getAuthorsList() });
       }
     )
   },

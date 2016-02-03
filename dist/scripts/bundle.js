@@ -47329,11 +47329,18 @@ module.exports =  API
 
 var Dispatcher = require('../dispatcher/appDispatcher.js');
 var API = require('../_API.js');
-
 var ActionTypes = require('../constants/actionTypes.js');
 
 
 var AuthorActions = {
+  postNewAuthorToDB: function(data){
+    API.post(data).then(function(savedRecord){
+      Dispatcher.dispatch({
+        actionType: ActionTypes.CREATE_AUTHOR,
+        authorData: savedRecord
+      })
+    })  
+  },
 
   fetchAuthorsFromDB: function(){
     API.get().then(function(authorsData){
@@ -47343,6 +47350,8 @@ var AuthorActions = {
       })
     })
   }
+
+
 }
 
 module.exports = AuthorActions;
@@ -47397,7 +47406,7 @@ var React = require('react')
 
 var NewAuthorsForm = React.createClass({displayName: "NewAuthorsForm",
   
-  showElOnError(msg){
+  showElOnError: function(msg){
     if (msg) {
       return React.createElement("div", null, 
         React.createElement("br", null), 
@@ -47510,21 +47519,23 @@ var AuthorsPage = React.createClass({displayName: "AuthorsPage",
 
   //(1)
   componentDidMount: function(){
-      
       console.log('authors_page.js mounted, bits');
-      console.log(AuthorStore.getAllAuthors());
-
       this._onChange();
       AuthorActions.fetchAuthorsFromDB();
-  
+      
+  },
+
+  componentWillUnmount: function(){
+    console.log('component unmounted')
+    AuthorStore.removeChangeListener();
   },
 
   _onChange: function(){
     var self = this
     AuthorStore.addChangeListener(function(){
         console.log('changeListenerRuns')
-        console.log(AuthorStore.getAllAuthors())
-        self.setState({ authors: AuthorStore.getAllAuthors() });
+        console.log(AuthorStore.getAuthorsList())
+        self.setState({ authors: AuthorStore.getAuthorsList() });
       }
     )
   },
@@ -47547,6 +47558,9 @@ var Router = require('react-router')
 
 var NewAuthorForm = require('./_form_new_authors.js');
 var API = require('../../_API.js');
+
+var AuthorActions = require('../../actions/authorActions.js')
+var AuthorStore = require('../../stores/authorStore.js')
 
 var NewAuthorPage = React.createClass({displayName: "NewAuthorPage",
   mixins: [
@@ -47591,7 +47605,7 @@ var NewAuthorPage = React.createClass({displayName: "NewAuthorPage",
 
   _onSave: function(e){
     e.preventDefault();
-    var form = e.target
+    var form = this.form = e.target
     var userInputData = {
       firstName : form.firstName.value,
       lastName  : form.lastName.value,
@@ -47607,12 +47621,25 @@ var NewAuthorPage = React.createClass({displayName: "NewAuthorPage",
         }
       });
 
-      API.post(userInputData).then(function(d){
-          form.firstName.value = '';
-          form.lastName.value = '';
-          this.transitionTo('authors')
-        }.bind(this))
+      AuthorActions.postNewAuthorToDB(userInputData);
     } 
+  },
+
+  componentDidMount: function(){
+    AuthorStore.addChangeListener(function(){
+      console.log('new authore data:.....')
+      console.log(AuthorStore.getNewAuthorData())
+      if (this.form){
+        this.form.firstName.value = '';
+        this.form.lastName.value = '';
+        this.transitionTo('authors');
+      }
+    }.bind(this));
+  },
+
+  componentWillUnmount: function(){
+    console.log('NewAuthor component unmounting...')
+    AuthorStore.removeChangeListener()
   },
 
   render: function(){
@@ -47627,7 +47654,7 @@ var NewAuthorPage = React.createClass({displayName: "NewAuthorPage",
 
 module.exports = NewAuthorPage;
 
-},{"../../_API.js":205,"./_form_new_authors.js":209,"react":204,"react-router":34}],213:[function(require,module,exports){
+},{"../../_API.js":205,"../../actions/authorActions.js":206,"../../stores/authorStore.js":220,"./_form_new_authors.js":209,"react":204,"react-router":34}],213:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -47787,7 +47814,7 @@ var API = require('../_API.js');
 // THE COLLECTION -- Dispatcher Updates and Store Returns to Component
 //----------------------------------------------------------
 var _authorsList = []
-
+var newAuthor = ""
 
 //----------------------------------------------------------
 // THE STORE -- Dispatcher Updates and Store Returns to Component
@@ -47799,29 +47826,38 @@ var AuthorStore = _.assign({},EventEmitter.prototype, {
       this.on('storeChange', cb );
     },
 
-    removeTheChangeLister: function(cb){
-      this.removeChangeListener('storeChange', cb);
+    removeChangeListener: function(){
+      console.log('change listener removed')
+      this.removeListener('storeChange',function(){});
     },
 
     emitChange: function(){
       this.emit('storeChange');
     },
+   // -----------
 
-    getAllAuthors: function(){
-      return _authorsList
+    getAuthorsList: function(){
+      return _authorsList;
+    },
+
+    getNewAuthorData: function(){
+      return newAuthor;
     }
 
 });
 
-//every store that registered w/ the dispatcher is notified of every single action
-Dispatcher.register( function(action) {
+//every store that is registered w/ the dispatcher 
+//  is notified of every single action
+Dispatcher.register( function(actionBlock) {
 
-  switch(action.actionType) {
+  switch(actionBlock.actionType) {
     case ActionTypes.GET_ALL_AUTHORS:
-      _authorsList = action.authorsList;      
+      _authorsList = actionBlock.authorsList;      
       AuthorStore.emitChange();
       break;
-    
+    case ActionTypes.CREATE_AUTHOR:
+      newAuthor = actionBlock.authorData;
+      AuthorStore.emitChange();
     default:
       //no operation
 

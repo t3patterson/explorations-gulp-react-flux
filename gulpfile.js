@@ -9,6 +9,7 @@
 // $ npm install gulp -g
 //
 
+
 //Import Modules
 var gulp = require('gulp');
 var connect = require('gulp-connect'); // runs a local dev server
@@ -19,10 +20,15 @@ var reactify = require('reactify');
 var source = require('vinyl-source-stream');
 
 var concat = require('gulp-concat');
+var uglify = require('gulp-uglify');
 var esLint = require('gulp-eslint');
 var scss = require('gulp-scss');
 var scsslint = require('gulp-scss-lint');
+var buffer = require('vinyl-buffer');
+var sourcemaps = require('gulp-sourcemaps');
 
+
+var cssnano = require('gulp-cssnano');
 
 //Setup Configuration Options
 var config = {
@@ -94,6 +100,9 @@ gulp.task('js', function(){
     .bundle()
     .on('error', console.error.bind(console))
     .pipe( source('bundle.js') )
+    //.pipe( buffer() )
+    //.pipe( uglify() )
+    .on('error', console.error.bind(console))
     .pipe( gulp.dest(config.paths.dist+ '/scripts' ))
     .pipe(connect.reload());
 });
@@ -126,7 +135,9 @@ gulp.task('bundle-css', ['scss','scss-lint'] ,function(){
   setTimeout(function(){gulp.src(config.paths.cssBundleIncludes)
     .pipe(concat('bundle.css'))
     .pipe(gulp.dest(config.paths.dist + "/css"))
+    .on('error', console.error.bind(console))
     .pipe(connect.reload());
+
     },1000)
 })
 

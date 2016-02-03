@@ -2,11 +2,18 @@
 
 var Dispatcher = require('../dispatcher/appDispatcher.js');
 var API = require('../_API.js');
-
 var ActionTypes = require('../constants/actionTypes.js');
 
 
 var AuthorActions = {
+  postNewAuthorToDB: function(data){
+    API.post(data).then(function(savedRecord){
+      Dispatcher.dispatch({
+        actionType: ActionTypes.CREATE_AUTHOR,
+        authorData: savedRecord
+      })
+    })  
+  },
 
   fetchAuthorsFromDB: function(){
     API.get().then(function(authorsData){
@@ -16,6 +23,8 @@ var AuthorActions = {
       })
     })
   }
+
+
 }
 
 module.exports = AuthorActions;

@@ -4,6 +4,9 @@ var Router = require('react-router')
 var NewAuthorForm = require('./_form_new_authors.js');
 var API = require('../../_API.js');
 
+var AuthorActions = require('../../actions/authorActions.js')
+var AuthorStore = require('../../stores/authorStore.js')
+
 var NewAuthorPage = React.createClass({
   mixins: [
     Router.Navigation
@@ -47,7 +50,7 @@ var NewAuthorPage = React.createClass({
 
   _onSave: function(e){
     e.preventDefault();
-    var form = e.target
+    var form = this.form = e.target
     var userInputData = {
       firstName : form.firstName.value,
       lastName  : form.lastName.value,
@@ -63,12 +66,25 @@ var NewAuthorPage = React.createClass({
         }
       });
 
-      API.post(userInputData).then(function(d){
-          form.firstName.value = '';
-          form.lastName.value = '';
-          this.transitionTo('authors')
-        }.bind(this))
+      AuthorActions.postNewAuthorToDB(userInputData);
     } 
+  },
+
+  componentDidMount: function(){
+    AuthorStore.addChangeListener(function(){
+      console.log('new authore data:.....')
+      console.log(AuthorStore.getNewAuthorData())
+      if (this.form){
+        this.form.firstName.value = '';
+        this.form.lastName.value = '';
+        this.transitionTo('authors');
+      }
+    }.bind(this));
+  },
+
+  componentWillUnmount: function(){
+    console.log('NewAuthor component unmounting...')
+    AuthorStore.removeChangeListener()
   },
 
   render: function(){

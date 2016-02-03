@@ -2,7 +2,7 @@ var React = require('react')
 
 var NewAuthorsForm = React.createClass({
   
-  showElOnError(msg){
+  showElOnError: function(msg){
     if (msg) {
       return <div>
         <br/>
