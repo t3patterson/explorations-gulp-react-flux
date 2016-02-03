@@ -18,6 +18,7 @@ var HomeView = require('./components/home_page.js');
 var AboutView = require('./components/about/about_page.js');
 var AuthorsView = require('./components/authors/authors_page.js');
 var NewAuthorView = require ('./components/authors/new_author_page.js');
+var SingleAuthorView = require ('./components/authors/single_author_page.js');
 
 console.log('say hi');
 
@@ -26,9 +27,11 @@ var routes = (
     <DefaultRoute handler={HomeView}/>
     
     <Route name="about" handler={AboutView}/>
-    <Route name="authors" path="/authors" handler={AuthorsView}/>
-    <Route name="authors-new" path="/authors/new" handler={NewAuthorView}/>
+    <Route name="authors" path="/authors" handler={AuthorsView}>
+    </Route>
+    <Route name="single-author" path="/authors/:autId" handler={SingleAuthorView}/>
 
+    <Route name="authors-new" path="/authors/new" handler={NewAuthorView}/>
     <NotFoundRoute handler={NotFoundPage}/>
     <Redirect from="about-us" to="about"/>
     <Redirect from="about/*" to="about"/>

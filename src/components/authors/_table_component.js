@@ -1,4 +1,6 @@
 var React = require('react');
+var Router = require('react-router');
+var Link = Router.Link;
 
 var AuthorsList = React.createClass({
   
@@ -14,7 +16,7 @@ var AuthorsList = React.createClass({
         </td>
         
         <td>
-          <a href={auth.name_id}> {auth.name_id} </a>
+          <Link to="single-author" params={{autId: auth.name_id}}> {auth.name_id} </Link>
         </td>
 
         <td>

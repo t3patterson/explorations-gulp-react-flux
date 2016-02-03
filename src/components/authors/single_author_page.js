@@ -18,13 +18,14 @@ var SingleAuthorPage = React.createClass({
   },
 
   render: function(){
+    console.log('single author render/????')
     return (
       <div>
         <h2>Single Author</h2>
-        <code>{window.location.pathname}<code>
+        <code>{window.location.pathname}</code>
       </div>
     )
   }
 })
 
-module.exports = NewAuthorPage;
+module.exports = SingleAuthorPage;
