@@ -4,8 +4,6 @@ var Dispatcher = require('../dispatcher/appDispatcher.js');
 var API = require('../_API.js');
 var ActionTypes = require('../constants/actionTypes.js');
 
-var authorsListCache = []
-
 var AuthorActions = {
   postNewAuthorToDB: function(data){
     API.post(data).then(function(savedRecord){
@@ -18,8 +16,8 @@ var AuthorActions = {
 
   fetchAuthorsFromDB: function(){
     API.getAll().then(function(authorsData){
-      authorsListCache = authorsData.results
-
+      console.log('--- from database in ACTION---')
+      console.log(authorsData.results)
       Dispatcher.dispatch({
         actionType: ActionTypes.GET_ALL_AUTHORS,
         authorsList: authorsData.results 
@@ -28,28 +26,12 @@ var AuthorActions = {
   },
 
   getSingleAuthor: function(dataObj){
-
-    var authorCached = authorsListCache.find(function(author){
-      return author.name_id
-    })
-    
-    if(authorCached){
-
+    API.getSingle(dataObj).then(function(data){
       Dispatcher.dispatch({
         actionType: ActionTypes.GET_SINGLE_AUTHOR,
-        authorsList: authorCached 
+        authorData: data.results[0] 
       })
-    } else {
-      console.log('API FECTCHING:---');
-      console.log(dataObj)
-
-      API.getSingle(dataObj).then(function(data){
-        console.log('Returned from SINGLE AUTHOR query');
-        console.log(data.results);
-        authorsListCache.push(data.results[0]);
-        
-      })
-    }
+    });
   },
 
 

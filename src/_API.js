@@ -16,6 +16,7 @@ function APIConstructor(){
       switch (reqType) {
         case ('getAll'):
           apiParams.type = 'get'
+          apiParams.data = ''
           break;
 
         case ('getSingle'):

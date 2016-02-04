@@ -47290,6 +47290,7 @@ function APIConstructor(){
       switch (reqType) {
         case ('getAll'):
           apiParams.type = 'get'
+          apiParams.data = ''
           break;
 
         case ('getSingle'):
@@ -47329,8 +47330,6 @@ var Dispatcher = require('../dispatcher/appDispatcher.js');
 var API = require('../_API.js');
 var ActionTypes = require('../constants/actionTypes.js');
 
-var authorsListCache = []
-
 var AuthorActions = {
   postNewAuthorToDB: function(data){
     API.post(data).then(function(savedRecord){
@@ -47343,8 +47342,8 @@ var AuthorActions = {
 
   fetchAuthorsFromDB: function(){
     API.getAll().then(function(authorsData){
-      authorsListCache = authorsData.results
-
+      console.log('--- from database in ACTION---')
+      console.log(authorsData.results)
       Dispatcher.dispatch({
         actionType: ActionTypes.GET_ALL_AUTHORS,
         authorsList: authorsData.results 
@@ -47353,28 +47352,12 @@ var AuthorActions = {
   },
 
   getSingleAuthor: function(dataObj){
-
-    var authorCached = authorsListCache.find(function(author){
-      return author.name_id
-    })
-    
-    if(authorCached){
-
+    API.getSingle(dataObj).then(function(data){
       Dispatcher.dispatch({
         actionType: ActionTypes.GET_SINGLE_AUTHOR,
-        authorsList: authorCached 
+        authorData: data.results[0] 
       })
-    } else {
-      console.log('API FECTCHING:---');
-      console.log(dataObj)
-
-      API.getSingle(dataObj).then(function(data){
-        console.log('Returned from SINGLE AUTHOR query');
-        console.log(data.results);
-        authorsListCache.push(data.results[0]);
-        
-      })
-    }
+    });
   },
 
 
@@ -47550,7 +47533,6 @@ var AuthorsPage = React.createClass({displayName: "AuthorsPage",
       console.log('authors_page.js mounted, bits');
       this._onChange();
       AuthorActions.fetchAuthorsFromDB();
-      
   },
 
   componentWillUnmount: function(){
@@ -47694,12 +47676,26 @@ var SingleAuthorPage = React.createClass({displayName: "SingleAuthorPage",
 
   getInitialState: function(){
     return {
+      author: {}
     }
   },
 
   componentDidMount: function(){
-    var authorId = this.props.params.autId
-    AuthorActions.getSingleAuthor({name_id: authorId})
+    var autIdParam = this.props.params.autId
+    AuthorActions.getSingleAuthor( {name_id: autIdParam} )
+    AuthorStore.addChangeListener(function(){
+      console.log(AuthorStore.getAuthorsList())
+      var authorRecord = AuthorStore.getAuthorsList().find(function(aut){
+        return aut.name_id === autIdParam
+      })
+
+      console.log('Author Record--Returned-after-flux')
+      console.log(authorRecord)
+      this.setState({
+        authorData: authorRecord
+      })
+
+    }.bind(this));
   },
 
   render: function(){
@@ -47707,7 +47703,8 @@ var SingleAuthorPage = React.createClass({displayName: "SingleAuthorPage",
     return (
       React.createElement("div", null, 
         React.createElement("h2", null, "Single Author"), 
-        React.createElement("pre", null
+        React.createElement("pre", null, 
+          JSON.stringify(this.state.authorData)
         )
       )
     )
@@ -47906,11 +47903,7 @@ var AuthorStore = _.assign({},EventEmitter.prototype, {
       return _authorsList;
     },
 
-    getAuthorData: function(aId){
-      //check the list, if not in the list, make an api request
-      
-      return newAuthor;
-    },
+
 
 });
 
@@ -47926,6 +47919,11 @@ Dispatcher.register( function(actionBlock) {
     case ActionTypes.CREATE_AUTHOR:
       newAuthor = actionBlock.authorData;
       AuthorStore.emitChange();
+      break;
+    case ActionTypes.GET_SINGLE_AUTHOR:
+      console.log("Action PAYLOAD")
+      AuthorStore.emitChange();
+      break;
     default:
       //no operation
 

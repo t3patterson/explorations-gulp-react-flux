@@ -10,12 +10,26 @@ var SingleAuthorPage = React.createClass({
 
   getInitialState: function(){
     return {
+      author: {}
     }
   },
 
   componentDidMount: function(){
-    var authorId = this.props.params.autId
-    AuthorActions.getSingleAuthor({name_id: authorId})
+    var autIdParam = this.props.params.autId
+    AuthorActions.getSingleAuthor( {name_id: autIdParam} )
+    AuthorStore.addChangeListener(function(){
+      console.log(AuthorStore.getAuthorsList())
+      var authorRecord = AuthorStore.getAuthorsList().find(function(aut){
+        return aut.name_id === autIdParam
+      })
+
+      console.log('Author Record--Returned-after-flux')
+      console.log(authorRecord)
+      this.setState({
+        authorData: authorRecord
+      })
+
+    }.bind(this));
   },
 
   render: function(){
@@ -24,6 +38,7 @@ var SingleAuthorPage = React.createClass({
       <div>
         <h2>Single Author</h2>
         <pre>
+          {JSON.stringify(this.state.authorData)}
         </pre>
       </div>
     )

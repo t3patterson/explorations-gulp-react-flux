@@ -36,11 +36,7 @@ var AuthorStore = _.assign({},EventEmitter.prototype, {
       return _authorsList;
     },
 
-    getAuthorData: function(aId){
-      //check the list, if not in the list, make an api request
-      
-      return newAuthor;
-    },
+
 
 });
 
@@ -56,6 +52,11 @@ Dispatcher.register( function(actionBlock) {
     case ActionTypes.CREATE_AUTHOR:
       newAuthor = actionBlock.authorData;
       AuthorStore.emitChange();
+      break;
+    case ActionTypes.GET_SINGLE_AUTHOR:
+      console.log("Action PAYLOAD")
+      AuthorStore.emitChange();
+      break;
     default:
       //no operation
 

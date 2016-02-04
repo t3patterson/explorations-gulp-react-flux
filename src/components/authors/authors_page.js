@@ -19,7 +19,6 @@ var AuthorsPage = React.createClass({
       console.log('authors_page.js mounted, bits');
       this._onChange();
       AuthorActions.fetchAuthorsFromDB();
-      
   },
 
   componentWillUnmount: function(){
