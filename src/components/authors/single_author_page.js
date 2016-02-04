@@ -14,7 +14,8 @@ var SingleAuthorPage = React.createClass({
   },
 
   componentDidMount: function(){
-
+    var authorId = this.props.params.autId
+    AuthorActions.getSingleAuthor({name_id: authorId})
   },
 
   render: function(){
@@ -22,7 +23,8 @@ var SingleAuthorPage = React.createClass({
     return (
       <div>
         <h2>Single Author</h2>
-        <code>{window.location.pathname}</code>
+        <pre>
+        </pre>
       </div>
     )
   }

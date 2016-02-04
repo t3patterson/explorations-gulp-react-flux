@@ -47275,52 +47275,50 @@ module.exports = require('./lib/React');
 "use strict"
 
 function APIConstructor(){
+  var apiParams = {
+    url: 'https://api.parse.com/1/classes/authors',
+    headers: {
+      'X-Parse-Application-Id': 'gGt3i515AVidNfMcYL3PfQOInNcYZ5tDdAKJrYWF',
+      'X-Parse-REST-API-Key': 'VtD6G0eBUNKcaMh6SxmcPwuvGMCZBzxFuKlyEeoI'
+    }
+  }
 
-  function requestType(httpType){
-    
-    var httpType  = httpType,
-        apiParams = {
-          url: 'https://api.parse.com/1/classes/authors',
-          headers: {
-            'X-Parse-Application-Id': 'gGt3i515AVidNfMcYL3PfQOInNcYZ5tDdAKJrYWF',
-            'X-Parse-REST-API-Key': 'VtD6G0eBUNKcaMh6SxmcPwuvGMCZBzxFuKlyEeoI'
-          }
-        }
-    
-    var apiRequestFn = function(dataObject){
-      
-      var settings = apiParams;
+  function requestType(reqType){
 
-      switch (httpType) {
-        case ('get'):
-          settings.type = 'get'
+    var apiReqSettings = function(dataObject){
+
+      switch (reqType) {
+        case ('getAll'):
+          apiParams.type = 'get'
           break;
+
+        case ('getSingle'):
+          apiParams.type = 'get'
+          apiParams.data = 'where='+JSON.stringify(dataObject)
+          break;
+
         case ('post'):
-          settings.type = 'post';
-          settings.contentType = 'application/json';
-          settings.data = JSON.stringify(dataObject);
+          apiParams.type = 'post';
+          apiParams.contentType = 'application/json';
+          apiParams.data = JSON.stringify(dataObject);
           break;
       }
 
-      return $.ajax(settings)
+      return $.ajax(apiParams)
     }
-    
-    return apiRequestFn
+
+    return apiReqSettings
   }
 
   return {
-    get: requestType('get'),
+    getAll: requestType('getAll'), //returns a FUNCTION that, when executed, will ajax-request+return a promise
+    getSingle: requestType('getSingle'),
     post: requestType('post')
   }
 }
 
 var API = new APIConstructor();
 
-API.get().then(function(data){
-  console.log('FROM API MODULE')
-  console.log(data)
-  console.log('-------------')
-})
 
 module.exports =  API
 
@@ -47331,6 +47329,7 @@ var Dispatcher = require('../dispatcher/appDispatcher.js');
 var API = require('../_API.js');
 var ActionTypes = require('../constants/actionTypes.js');
 
+var authorsListCache = []
 
 var AuthorActions = {
   postNewAuthorToDB: function(data){
@@ -47343,13 +47342,41 @@ var AuthorActions = {
   },
 
   fetchAuthorsFromDB: function(){
-    API.get().then(function(authorsData){
+    API.getAll().then(function(authorsData){
+      authorsListCache = authorsData.results
+
       Dispatcher.dispatch({
         actionType: ActionTypes.GET_ALL_AUTHORS,
         authorsList: authorsData.results 
       })
     })
-  }
+  },
+
+  getSingleAuthor: function(dataObj){
+
+    var authorCached = authorsListCache.find(function(author){
+      return author.name_id
+    })
+    
+    if(authorCached){
+
+      Dispatcher.dispatch({
+        actionType: ActionTypes.GET_SINGLE_AUTHOR,
+        authorsList: authorCached 
+      })
+    } else {
+      console.log('API FECTCHING:---');
+      console.log(dataObj)
+
+      API.getSingle(dataObj).then(function(data){
+        console.log('Returned from SINGLE AUTHOR query');
+        console.log(data.results);
+        authorsListCache.push(data.results[0]);
+        
+      })
+    }
+  },
+
 
 
 }
@@ -47417,7 +47444,7 @@ var NewAuthorsForm = React.createClass({displayName: "NewAuthorsForm",
 
   render: function(){
     return (
-      React.createElement("form", {onSubmit: this.props.onSave}, 
+      React.createElement("form", {className: "col-xs-offset-3 col-xs-6", onSubmit: this.props.onSave}, 
         
         React.createElement("label", {htmlFor: "firstName"}, "Name Name"), 
         React.createElement("input", {type: "text", 
@@ -47445,7 +47472,6 @@ var NewAuthorsForm = React.createClass({displayName: "NewAuthorsForm",
         React.createElement("input", {type: "submit", 
           className: "btn btn-default", 
           value: "Submit"})
-
       )
     )
   }
@@ -47630,7 +47656,6 @@ var NewAuthorPage = React.createClass({displayName: "NewAuthorPage",
   componentDidMount: function(){
     AuthorStore.addChangeListener(function(){
       console.log('new authore data:.....')
-      console.log(AuthorStore.getNewAuthorData())
       if (this.form){
         this.form.firstName.value = '';
         this.form.lastName.value = '';
@@ -47673,7 +47698,8 @@ var SingleAuthorPage = React.createClass({displayName: "SingleAuthorPage",
   },
 
   componentDidMount: function(){
-
+    var authorId = this.props.params.autId
+    AuthorActions.getSingleAuthor({name_id: authorId})
   },
 
   render: function(){
@@ -47681,7 +47707,8 @@ var SingleAuthorPage = React.createClass({displayName: "SingleAuthorPage",
     return (
       React.createElement("div", null, 
         React.createElement("h2", null, "Single Author"), 
-        React.createElement("code", null, window.location.pathname)
+        React.createElement("pre", null
+        )
       )
     )
   }
@@ -47768,6 +47795,7 @@ var keyMirror = require('react/lib/keyMirror');
 
 var ActionTypes = keyMirror({
   CREATE_AUTHOR: null,
+  GET_SINGLE_AUTHOR: null,
   GET_ALL_AUTHORS: null
 })
 
@@ -47827,9 +47855,9 @@ var routes = (
     React.createElement(Route, {name: "about", handler: AboutView}), 
     React.createElement(Route, {name: "authors", path: "/authors", handler: AuthorsView}
     ), 
+    React.createElement(Route, {name: "authors-new", path: "/authors/new", handler: NewAuthorView}), 
     React.createElement(Route, {name: "single-author", path: "/authors/:autId", handler: SingleAuthorView}), 
 
-    React.createElement(Route, {name: "authors-new", path: "/authors/new", handler: NewAuthorView}), 
     React.createElement(NotFoundRoute, {handler: NotFoundPage}), 
     React.createElement(Redirect, {from: "about-us", to: "about"}), 
     React.createElement(Redirect, {from: "about/*", to: "about"}), 
@@ -47841,8 +47869,8 @@ module.exports = routes;
 
 },{"./components/about/about_page.js":207,"./components/app.js":208,"./components/authors/authors_page.js":211,"./components/authors/new_author_page.js":212,"./components/authors/single_author_page.js":213,"./components/home_page.js":215,"./components/not_found_page.js":216,"react":204,"react-router":34}],221:[function(require,module,exports){
 var Dispatcher = require('../dispatcher/appDispatcher.js');
-var EventEmitter = require('events').EventEmitter;
 var _ = require('lodash');
+var EventEmitter = require('events').EventEmitter;
 
 var ActionTypes = require('../constants/actionTypes.js');
 
@@ -47852,7 +47880,7 @@ var API = require('../_API.js');
 // THE COLLECTION -- Dispatcher Updates and Store Returns to Component
 //----------------------------------------------------------
 var _authorsList = []
-var newAuthor = ""
+var author = ""
 
 //----------------------------------------------------------
 // THE STORE -- Dispatcher Updates and Store Returns to Component
@@ -47878,9 +47906,11 @@ var AuthorStore = _.assign({},EventEmitter.prototype, {
       return _authorsList;
     },
 
-    getNewAuthorData: function(){
+    getAuthorData: function(aId){
+      //check the list, if not in the list, make an api request
+      
       return newAuthor;
-    }
+    },
 
 });
 

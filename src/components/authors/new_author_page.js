@@ -73,7 +73,6 @@ var NewAuthorPage = React.createClass({
   componentDidMount: function(){
     AuthorStore.addChangeListener(function(){
       console.log('new authore data:.....')
-      console.log(AuthorStore.getNewAuthorData())
       if (this.form){
         this.form.firstName.value = '';
         this.form.lastName.value = '';

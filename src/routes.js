@@ -29,9 +29,9 @@ var routes = (
     <Route name="about" handler={AboutView}/>
     <Route name="authors" path="/authors" handler={AuthorsView}>
     </Route>
+    <Route name="authors-new" path="/authors/new" handler={NewAuthorView}/>
     <Route name="single-author" path="/authors/:autId" handler={SingleAuthorView}/>
 
-    <Route name="authors-new" path="/authors/new" handler={NewAuthorView}/>
     <NotFoundRoute handler={NotFoundPage}/>
     <Redirect from="about-us" to="about"/>
     <Redirect from="about/*" to="about"/>

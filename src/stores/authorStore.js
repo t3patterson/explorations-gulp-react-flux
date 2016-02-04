@@ -1,6 +1,6 @@
 var Dispatcher = require('../dispatcher/appDispatcher.js');
-var EventEmitter = require('events').EventEmitter;
 var _ = require('lodash');
+var EventEmitter = require('events').EventEmitter;
 
 var ActionTypes = require('../constants/actionTypes.js');
 
@@ -10,7 +10,7 @@ var API = require('../_API.js');
 // THE COLLECTION -- Dispatcher Updates and Store Returns to Component
 //----------------------------------------------------------
 var _authorsList = []
-var newAuthor = ""
+var author = ""
 
 //----------------------------------------------------------
 // THE STORE -- Dispatcher Updates and Store Returns to Component
@@ -36,9 +36,11 @@ var AuthorStore = _.assign({},EventEmitter.prototype, {
       return _authorsList;
     },
 
-    getNewAuthorData: function(){
+    getAuthorData: function(aId){
+      //check the list, if not in the list, make an api request
+      
       return newAuthor;
-    }
+    },
 
 });
 

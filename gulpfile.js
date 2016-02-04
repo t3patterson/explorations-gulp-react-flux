@@ -22,6 +22,7 @@ var source = require('vinyl-source-stream');
 var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
 var esLint = require('gulp-eslint');
+
 var scss = require('gulp-scss');
 var scsslint = require('gulp-scss-lint');
 var buffer = require('vinyl-buffer');

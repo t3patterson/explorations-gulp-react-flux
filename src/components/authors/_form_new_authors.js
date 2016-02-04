@@ -13,7 +13,7 @@ var NewAuthorsForm = React.createClass({
 
   render: function(){
     return (
-      <form onSubmit={this.props.onSave}>
+      <form className="col-xs-offset-3 col-xs-6" onSubmit={this.props.onSave}>
         
         <label htmlFor="firstName">Name Name</label>
         <input type= "text"
@@ -41,7 +41,6 @@ var NewAuthorsForm = React.createClass({
         <input type="submit"
           className="btn btn-default"
           value="Submit"/>
-
       </form>
     )
   }
