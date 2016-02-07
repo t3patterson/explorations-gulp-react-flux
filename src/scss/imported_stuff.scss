@@ -1,5 +1,7 @@
 @import 'imported_of_imports';
 
-nav {
-  background: #add8e6;
+nav.navbar {
+  background-color: #744932;
+  ul.nav.navbar-nav li a {color: #fff;}
 }
+

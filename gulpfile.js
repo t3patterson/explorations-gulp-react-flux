@@ -19,16 +19,15 @@ var browserify = require('browserify');
 var reactify = require('reactify');
 var source = require('vinyl-source-stream');
 
-var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
 var esLint = require('gulp-eslint');
-
-var scss = require('gulp-scss');
-var scsslint = require('gulp-scss-lint');
 var buffer = require('vinyl-buffer');
+
+var concat = require('gulp-concat');
+
+var sass = require('gulp-sass');
+var scsslint = require('gulp-scss-lint');
 var sourcemaps = require('gulp-sourcemaps');
-
-
 var cssnano = require('gulp-cssnano');
 
 //Setup Configuration Options
@@ -116,7 +115,10 @@ gulp.task('js-lint',function(){
 
 gulp.task('scss', function(){
   gulp.src(config.paths.scss)
-    .pipe( scss() )
+    .pipe(sourcemaps.init())
+    .pipe(sass().on('error', sass.logError))
+    .pipe(sourcemaps.write())
+    .pipe(cssnano())
     .pipe( gulp.dest( config.paths.dist+"/css/includes" ) )
 })
 
