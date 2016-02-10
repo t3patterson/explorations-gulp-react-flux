@@ -20,7 +20,7 @@ var reactify = require('reactify');
 var source = require('vinyl-source-stream');
 
 var uglify = require('gulp-uglify');
-var esLint = require('gulp-eslint');
+var esLint = require('gulp-eslint');  
 var buffer = require('vinyl-buffer');
 
 var concat = require('gulp-concat');
@@ -29,6 +29,10 @@ var sass = require('gulp-sass');
 var scsslint = require('gulp-scss-lint');
 var sourcemaps = require('gulp-sourcemaps');
 var cssnano = require('gulp-cssnano');
+
+var runSequence = require('run-sequence');
+
+
 
 //Setup Configuration Options
 var config = {
@@ -131,17 +135,20 @@ gulp.task('scss-lint', function(){
       .pipe( scsslint() );
 })
 
-gulp.task('bundle-css', ['scss','scss-lint'] ,function(){
+gulp.task('bundle-css', ['scss-lint'] ,function(){
   console.log('====================');
   console.log('css files bundling.....');
   console.log('====================');
-  setTimeout(function(){gulp.src(config.paths.cssBundleIncludes)
+
+  runSequence('scss', function(){
+    gulp.src(config.paths.cssBundleIncludes)
     .pipe(concat('bundle.css'))
     .pipe(gulp.dest(config.paths.dist + "/css"))
     .on('error', console.error.bind(console))
     .pipe(connect.reload());
 
-    },1000)
+  });
+
 })
 
 gulp.task('watch', function(){

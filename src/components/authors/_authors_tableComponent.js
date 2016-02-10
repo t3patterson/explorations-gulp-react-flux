@@ -16,7 +16,7 @@ var AuthorsList = React.createClass({
         </td>
         
         <td>
-          <Link to="single-author" params={{autId: auth.name_id}}> {auth.name_id} </Link>
+          <Link to="show-single-author" params={{autId: auth.name_id}}> {auth.name_id} </Link>
         </td>
 
         <td>
@@ -37,7 +37,7 @@ var AuthorsList = React.createClass({
           </tr>
         </thead>
         <tbody>
-          {this.props.authors.map(this._createAuthorRows)}
+          {this.props.authorsData.map(this._createAuthorRows)}
         </tbody>
       </table>
     )

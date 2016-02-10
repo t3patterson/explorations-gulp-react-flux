@@ -1,7 +1,7 @@
 var React = require('react');
 var Router = require('react-router')
 
-var NewAuthorForm = require('./_form_new_authors.js');
+var NewAuthorForm = require('./_new_author_form.js');
 var API = require('../../_API.js');
 
 var AuthorActions = require('../../actions/authorActions.js')

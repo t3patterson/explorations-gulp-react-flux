@@ -3,7 +3,7 @@ var React = require('react')
 var AuthorActions = require('../../actions/authorActions.js');
 var AuthorStore = require('../../stores/authorStore.js');
 
-var AuthorsList = require('./_table_component.js');
+var AuthorsList = require('./_authors_tableComponent.js');
 
 
 var AuthorsPage = React.createClass({
@@ -40,7 +40,7 @@ var AuthorsPage = React.createClass({
     return (
       <div>
         <h1>Authors</h1>
-        <AuthorsList authors={this.state.authors} />
+        <AuthorsList authorsData={this.state.authors} />
       </div>
     );
   }

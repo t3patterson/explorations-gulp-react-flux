@@ -47366,7 +47366,7 @@ var AuthorActions = {
 
 module.exports = AuthorActions;
 
-},{"../_API.js":205,"../constants/actionTypes.js":217,"../dispatcher/appDispatcher.js":218}],207:[function(require,module,exports){
+},{"../_API.js":205,"../constants/actionTypes.js":219,"../dispatcher/appDispatcher.js":220}],207:[function(require,module,exports){
 "use strict";
 var React = require('react');
 
@@ -47411,7 +47411,56 @@ var App = React.createClass({displayName: "App",
 
 module.exports = App
 
-},{"./common/header.js":214,"react":204,"react-router":34}],209:[function(require,module,exports){
+},{"./common/header.js":216,"react":204,"react-router":34}],209:[function(require,module,exports){
+var React = require('react');
+var Router = require('react-router');
+var Link = Router.Link;
+
+var AuthorsList = React.createClass({displayName: "AuthorsList",
+  
+  propTypes: {
+    authors: React.PropTypes.array.isRequired
+  },
+
+  _createAuthorRows: function(auth,i){
+    return (
+      React.createElement("tr", {key: i}, 
+        React.createElement("td", null, 
+          i+1
+        ), 
+        
+        React.createElement("td", null, 
+          React.createElement(Link, {to: "show-single-author", params: {autId: auth.name_id}}, " ", auth.name_id, " ")
+        ), 
+
+        React.createElement("td", null, 
+          auth.firstName + " " + auth.lastName
+        )
+      )
+    );
+  },
+
+  render: function(){
+    return (
+      React.createElement("table", {className: "table"}, 
+        React.createElement("thead", null, 
+          React.createElement("tr", null, 
+            React.createElement("th", null, "#"), 
+            React.createElement("th", null, "ID"), 
+            React.createElement("th", null, "Name")
+          )
+        ), 
+        React.createElement("tbody", null, 
+          this.props.authorsData.map(this._createAuthorRows)
+        )
+      )
+    )
+  }
+})
+
+module.exports = AuthorsList;
+
+},{"react":204,"react-router":34}],210:[function(require,module,exports){
 var React = require('react')
 
 var NewAuthorsForm = React.createClass({displayName: "NewAuthorsForm",
@@ -47462,62 +47511,104 @@ var NewAuthorsForm = React.createClass({displayName: "NewAuthorsForm",
 
 module.exports = NewAuthorsForm;
 
-},{"react":204}],210:[function(require,module,exports){
-var React = require('react');
-var Router = require('react-router');
-var Link = Router.Link;
+},{"react":204}],211:[function(require,module,exports){
+var React = require('react')
 
-var AuthorsList = React.createClass({displayName: "AuthorsList",
-  
-  propTypes: {
-    authors: React.PropTypes.array.isRequired
+var EditAuthor = React.createClass({displayName: "EditAuthor",
+
+  _showLoading: function(){
+      return '...loading...'
   },
 
-  _createAuthorRows: function(auth,i){
+  _showTable: function(){
     return (
-      React.createElement("tr", {key: i}, 
-        React.createElement("td", null, 
-          i+1
-        ), 
-        
-        React.createElement("td", null, 
-          React.createElement(Link, {to: "single-author", params: {autId: auth.name_id}}, " ", auth.name_id, " ")
-        ), 
-
-        React.createElement("td", null, 
-          auth.firstName + " " + auth.lastName
-        )
+      React.createElement("table", {className: "table"}, 
+       React.createElement("tr", null, 
+         React.createElement("th", {className: "active"}, "First Name"), 
+         React.createElement("td", null, React.createElement("input", {defaultValue: this.props.authorData.firstName, className: "form-control"}))
+       ), 
+       React.createElement("tr", null, 
+         React.createElement("th", {className: "active"}, "Last Name"), 
+         React.createElement("td", null, React.createElement("input", {defaultValue: this.props.authorData.lastName, className: "form-control"}))
+       ), 
+       React.createElement("tr", null, 
+         React.createElement("th", {className: "active"}, "New User Name"), 
+         React.createElement("td", null, React.createElement("em", null, this.props.authorData.name_id))
+       ), 
+       React.createElement("tr", null, 
+         React.createElement("th", {className: "active"}, "Age"), 
+         React.createElement("td", null, React.createElement("input", {defaultValue: this.props.authorData.age, className: "form-control"}))
+       ), 
+       React.createElement("tr", null, 
+         React.createElement("th", {className: "active"}, "Status"), 
+         React.createElement("td", null, React.createElement("input", {defaultValue: this.props.authorData.active, className: "form-control"}))
+       )
       )
-    );
+    )
+  },
+
+  _getLoadingOrForm: function(){
+    if (Object.keys(this.props.authorData).length){
+      return this._showTable();
+
+    } else {
+      return this._showLoading();
+    }
+
   },
 
   render: function(){
+    console.log('props on EditAuthor')
+    console.log(this.props.authorData.firstName)
+    
     return (
-      React.createElement("table", {className: "table"}, 
-        React.createElement("thead", null, 
-          React.createElement("tr", null, 
-            React.createElement("th", null, "#"), 
-            React.createElement("th", null, "ID"), 
-            React.createElement("th", null, "Name")
+      React.createElement("form", null, 
+         this._getLoadingOrForm() 
+      )
+    )
+  }
+})
+
+module.exports = EditAuthor;
+
+},{"react":204}],212:[function(require,module,exports){
+var React = require('react')
+
+var ShowSingleAuthor = React.createClass({displayName: "ShowSingleAuthor",
+
+  render: function(){
+    console.log(this.props.authorData.name_id);
+    var d = new Date(this.props.authorData.createdAt)
+
+    return (
+      React.createElement("div", {className: "panel panel-info"}, 
+        React.createElement("div", {className: "panel-heading"}, 
+          React.createElement("h4", null, 
+            React.createElement("span", {className: "list-group-item active"}, this.props.authorData.name_id)
           )
         ), 
-        React.createElement("tbody", null, 
-          this.props.authors.map(this._createAuthorRows)
+        React.createElement("div", {className: "panel-body"}, 
+          React.createElement("h5", null, this.props.authorData.firstName, " ", this.props.authorData.lastName), 
+            React.createElement("ul", null, 
+              React.createElement("li", null, this.props.authorData.age, " years old"), 
+              React.createElement("li", null, "Joined on: ", d.getMonth()+1, " / ", d.getDate(), " / ", d.getFullYear()), 
+              React.createElement("li", null, "Status: ", React.createElement("strong", null, this.props.authorData.active ? 'active':'inactive'))
+            )
         )
       )
     )
   }
 })
 
-module.exports = AuthorsList;
+module.exports = ShowSingleAuthor;
 
-},{"react":204,"react-router":34}],211:[function(require,module,exports){
+},{"react":204}],213:[function(require,module,exports){
 var React = require('react')
 
 var AuthorActions = require('../../actions/authorActions.js');
 var AuthorStore = require('../../stores/authorStore.js');
 
-var AuthorsList = require('./_table_component.js');
+var AuthorsList = require('./_authors_tableComponent.js');
 
 
 var AuthorsPage = React.createClass({displayName: "AuthorsPage",
@@ -47554,7 +47645,7 @@ var AuthorsPage = React.createClass({displayName: "AuthorsPage",
     return (
       React.createElement("div", null, 
         React.createElement("h1", null, "Authors"), 
-        React.createElement(AuthorsList, {authors: this.state.authors})
+        React.createElement(AuthorsList, {authorsData: this.state.authors})
       )
     );
   }
@@ -47562,11 +47653,11 @@ var AuthorsPage = React.createClass({displayName: "AuthorsPage",
 
 module.exports = AuthorsPage;
 
-},{"../../actions/authorActions.js":206,"../../stores/authorStore.js":221,"./_table_component.js":210,"react":204}],212:[function(require,module,exports){
+},{"../../actions/authorActions.js":206,"../../stores/authorStore.js":223,"./_authors_tableComponent.js":209,"react":204}],214:[function(require,module,exports){
 var React = require('react');
 var Router = require('react-router')
 
-var NewAuthorForm = require('./_form_new_authors.js');
+var NewAuthorForm = require('./_new_author_form.js');
 var API = require('../../_API.js');
 
 var AuthorActions = require('../../actions/authorActions.js')
@@ -47663,49 +47754,66 @@ var NewAuthorPage = React.createClass({displayName: "NewAuthorPage",
 
 module.exports = NewAuthorPage;
 
-},{"../../_API.js":205,"../../actions/authorActions.js":206,"../../stores/authorStore.js":221,"./_form_new_authors.js":209,"react":204,"react-router":34}],213:[function(require,module,exports){
+},{"../../_API.js":205,"../../actions/authorActions.js":206,"../../stores/authorStore.js":223,"./_new_author_form.js":210,"react":204,"react-router":34}],215:[function(require,module,exports){
 var React = require('react');
-var Router = require('react-router')
+var Router = require('react-router');
+var Link = Router.Link;
 
 var API = require('../../_API.js');
 
-var AuthorActions = require('../../actions/authorActions.js')
-var AuthorStore = require('../../stores/authorStore.js')
+var AuthorActions = require('../../actions/authorActions.js');
+var AuthorStore = require('../../stores/authorStore.js');
+
+var ShowSingleAuthor = require('./_single_author_show');
+var EditSingleAuthor = require('./_single_author_edit')
 
 var SingleAuthorPage = React.createClass({displayName: "SingleAuthorPage",
 
   getInitialState: function(){
     return {
-      author: {}
+      authorData: {}
     }
   },
 
   componentDidMount: function(){
     var autIdParam = this.props.params.autId
+    
+    //Trigger GET_SINGLE_AUTHOR action
     AuthorActions.getSingleAuthor( {name_id: autIdParam} )
+    
+    //on 'GET_SINGLE_AUTHOR', retrieve the author off the _authorsList
     AuthorStore.addChangeListener(function(){
-      console.log(AuthorStore.getAuthorsList())
+      
       var authorRecord = AuthorStore.getAuthorsList().find(function(aut){
         return aut.name_id === autIdParam
       })
 
-      console.log('Author Record--Returned-after-flux')
-      console.log(authorRecord)
       this.setState({
         authorData: authorRecord
       })
 
+
     }.bind(this));
   },
 
+  _viewComponent: function(path){
+    
+    if (window.location.pathname.indexOf('edit') > -1 ){
+      
+      return React.createElement(EditSingleAuthor, {authorData: this.state.authorData})
+    } else {
+      return React.createElement(ShowSingleAuthor, {authorData: this.state.authorData})
+    }
+
+
+  },
+
   render: function(){
-    console.log('single author render/????')
+    console.log(this.state.authorData)
     return (
       React.createElement("div", null, 
         React.createElement("h2", null, "Single Author"), 
-        React.createElement("pre", null, 
-          JSON.stringify(this.state.authorData)
-        )
+        this._viewComponent()
       )
     )
   }
@@ -47713,7 +47821,7 @@ var SingleAuthorPage = React.createClass({displayName: "SingleAuthorPage",
 
 module.exports = SingleAuthorPage;
 
-},{"../../_API.js":205,"../../actions/authorActions.js":206,"../../stores/authorStore.js":221,"react":204,"react-router":34}],214:[function(require,module,exports){
+},{"../../_API.js":205,"../../actions/authorActions.js":206,"../../stores/authorStore.js":223,"./_single_author_edit":211,"./_single_author_show":212,"react":204,"react-router":34}],216:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -47749,7 +47857,7 @@ var Header = React.createClass({displayName: "Header",
 
 module.exports = Header
 
-},{"react":204,"react-router":34}],215:[function(require,module,exports){
+},{"react":204,"react-router":34}],217:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -47767,7 +47875,7 @@ var Home = React.createClass({displayName: "Home",
 
 module.exports = Home
 
-},{"react":204}],216:[function(require,module,exports){
+},{"react":204}],218:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -47787,7 +47895,7 @@ var Home = React.createClass({displayName: "Home",
 
 module.exports = Home
 
-},{"react":204,"react-router":34}],217:[function(require,module,exports){
+},{"react":204,"react-router":34}],219:[function(require,module,exports){
 var keyMirror = require('react/lib/keyMirror');
 
 var ActionTypes = keyMirror({
@@ -47798,12 +47906,12 @@ var ActionTypes = keyMirror({
 
 module.exports = ActionTypes
 
-},{"react/lib/keyMirror":189}],218:[function(require,module,exports){
+},{"react/lib/keyMirror":189}],220:[function(require,module,exports){
 var Dispatcher = require('flux').Dispatcher;
 
 module.exports = new Dispatcher();
 
-},{"flux":3}],219:[function(require,module,exports){
+},{"flux":3}],221:[function(require,module,exports){
 /*eslint-disable strict*/
 
 // put jQuery in global namespace
@@ -47816,11 +47924,12 @@ var appRoutes = require('./routes.js');
 
 Parse.initialize("gGt3i515AVidNfMcYL3PfQOInNcYZ5tDdAKJrYWF", "6kxwYiFzzXFzipipuxLNsb5qCLTLCIhV7A46J5Od");
 
+
 Router.run(appRoutes, Router.HistoryLocation, function(Handler){
   React.render(React.createElement(Handler, null), document.querySelector('.container'));
 })
 
-},{"./routes.js":220,"jquery":7,"react":204,"react-router":34}],220:[function(require,module,exports){
+},{"./routes.js":222,"jquery":7,"react":204,"react-router":34}],222:[function(require,module,exports){
 "use strict"
 var React = require('react');
 //React-Router
@@ -47853,7 +47962,8 @@ var routes = (
     React.createElement(Route, {name: "authors", path: "/authors", handler: AuthorsView}
     ), 
     React.createElement(Route, {name: "authors-new", path: "/authors/new", handler: NewAuthorView}), 
-    React.createElement(Route, {name: "single-author", path: "/authors/:autId", handler: SingleAuthorView}), 
+    React.createElement(Route, {name: "show-single-author", path: "/authors/:autId", handler: SingleAuthorView}), 
+    React.createElement(Route, {name: "edit-single-author", path: "/authors/:autId/edit", handler: SingleAuthorView}), 
 
     React.createElement(NotFoundRoute, {handler: NotFoundPage}), 
     React.createElement(Redirect, {from: "about-us", to: "about"}), 
@@ -47864,7 +47974,7 @@ var routes = (
 
 module.exports = routes;
 
-},{"./components/about/about_page.js":207,"./components/app.js":208,"./components/authors/authors_page.js":211,"./components/authors/new_author_page.js":212,"./components/authors/single_author_page.js":213,"./components/home_page.js":215,"./components/not_found_page.js":216,"react":204,"react-router":34}],221:[function(require,module,exports){
+},{"./components/about/about_page.js":207,"./components/app.js":208,"./components/authors/authors_page.js":213,"./components/authors/new_author_page.js":214,"./components/authors/single_author_page.js":215,"./components/home_page.js":217,"./components/not_found_page.js":218,"react":204,"react-router":34}],223:[function(require,module,exports){
 var Dispatcher = require('../dispatcher/appDispatcher.js');
 var _ = require('lodash');
 var EventEmitter = require('events').EventEmitter;
@@ -47921,7 +48031,9 @@ Dispatcher.register( function(actionBlock) {
       AuthorStore.emitChange();
       break;
     case ActionTypes.GET_SINGLE_AUTHOR:
-      console.log("Action PAYLOAD")
+      console.log("Action PAYLOAD");
+      _authorsList = []
+      _authorsList.push(actionBlock.authorData)
       AuthorStore.emitChange();
       break;
     default:
@@ -47932,4 +48044,4 @@ Dispatcher.register( function(actionBlock) {
 
 module.exports = AuthorStore;
 
-},{"../_API.js":205,"../constants/actionTypes.js":217,"../dispatcher/appDispatcher.js":218,"events":2,"lodash":8}]},{},[219]);
+},{"../_API.js":205,"../constants/actionTypes.js":219,"../dispatcher/appDispatcher.js":220,"events":2,"lodash":8}]},{},[221]);

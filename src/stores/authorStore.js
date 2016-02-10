@@ -54,7 +54,9 @@ Dispatcher.register( function(actionBlock) {
       AuthorStore.emitChange();
       break;
     case ActionTypes.GET_SINGLE_AUTHOR:
-      console.log("Action PAYLOAD")
+      console.log("Action PAYLOAD");
+      _authorsList = []
+      _authorsList.push(actionBlock.authorData)
       AuthorStore.emitChange();
       break;
     default:

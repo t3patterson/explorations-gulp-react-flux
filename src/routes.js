@@ -30,7 +30,8 @@ var routes = (
     <Route name="authors" path="/authors" handler={AuthorsView}>
     </Route>
     <Route name="authors-new" path="/authors/new" handler={NewAuthorView}/>
-    <Route name="single-author" path="/authors/:autId" handler={SingleAuthorView}/>
+    <Route name="show-single-author" path="/authors/:autId" handler={SingleAuthorView}/>
+    <Route name="edit-single-author" path="/authors/:autId/edit" handler={SingleAuthorView}/>
 
     <NotFoundRoute handler={NotFoundPage}/>
     <Redirect from="about-us" to="about"/>
