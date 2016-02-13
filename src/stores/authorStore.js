@@ -10,7 +10,11 @@ var API = require('../_API.js');
 // THE COLLECTION -- Dispatcher Updates and Store Returns to Component
 //----------------------------------------------------------
 var _authorsList = []
-var author = ""
+var _author = ""
+
+var _authorFormState = {
+
+}
 
 //----------------------------------------------------------
 // THE STORE -- Dispatcher Updates and Store Returns to Component
@@ -36,6 +40,9 @@ var AuthorStore = _.assign({},EventEmitter.prototype, {
       return _authorsList;
     },
 
+    getEditFormUIState: function(){
+      return _authorEditFormState
+    }
 
 
 });
@@ -54,11 +61,15 @@ Dispatcher.register( function(actionBlock) {
       AuthorStore.emitChange();
       break;
     case ActionTypes.GET_SINGLE_AUTHOR:
-      console.log("Action PAYLOAD");
+      console.log("GET SINGLE Action PAYLOAD");
+      console.log(actionBlock.authorData)
       _authorsList = []
       _authorsList.push(actionBlock.authorData)
       AuthorStore.emitChange();
       break;
+
+    case ActionTypes.EDIT_FORM_UPDATE_UI:
+      _authorEditFormState = actionBlock.authorData
     default:
       //no operation
 

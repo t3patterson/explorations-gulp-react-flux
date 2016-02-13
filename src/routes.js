@@ -17,8 +17,10 @@ var NotFoundPage = require('./components/not_found_page.js');
 var HomeView = require('./components/home_page.js');
 var AboutView = require('./components/about/about_page.js');
 var AuthorsView = require('./components/authors/authors_page.js');
-var NewAuthorView = require ('./components/authors/new_author_page.js');
-var SingleAuthorView = require ('./components/authors/single_author_page.js');
+var NewAuthorView = require ('./components/authors/single_author_new.js');
+var SingleAuthorView = require ('./components/authors/single_author_show.js');
+var EditAuthorView = require ('./components/authors/single_author_edit.js');
+
 
 console.log('say hi');
 
@@ -31,7 +33,7 @@ var routes = (
     </Route>
     <Route name="authors-new" path="/authors/new" handler={NewAuthorView}/>
     <Route name="show-single-author" path="/authors/:autId" handler={SingleAuthorView}/>
-    <Route name="edit-single-author" path="/authors/:autId/edit" handler={SingleAuthorView}/>
+    <Route name="edit-single-author" path="/authors/:autId/edit" handler={EditAuthorView}/>
 
     <NotFoundRoute handler={NotFoundPage}/>
     <Redirect from="about-us" to="about"/>

@@ -7,14 +7,8 @@ var Link = Router.Link;
 var Header = React.createClass({
   render: function(){
     return(
-      <nav className="navbar navbar-default">
-        <div className="container-fluid">
-            
-            <a href="/" className="navbar-brand">
-              <img src="images/heart.png"/>
-            </a>
-        </div>
-        <hr/>
+      <nav className="navbar navbar-default">            
+        
         <ul className="nav navbar-nav">
           <li><Link to="app">Home</Link></li>
           <li><Link to="about">About Us</Link></li>

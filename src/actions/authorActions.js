@@ -16,8 +16,8 @@ var AuthorActions = {
 
   fetchAuthorsFromDB: function(){
     API.getAll().then(function(authorsData){
-      console.log('--- from database in ACTION---')
-      console.log(authorsData.results)
+      // console.log('--- from database in ACTION---')
+      // console.log(authorsData.results)
       Dispatcher.dispatch({
         actionType: ActionTypes.GET_ALL_AUTHORS,
         authorsList: authorsData.results 
@@ -27,6 +27,7 @@ var AuthorActions = {
 
   getSingleAuthor: function(dataObj){
     API.getSingle(dataObj).then(function(data){
+      console.log(data.results[0])
       Dispatcher.dispatch({
         actionType: ActionTypes.GET_SINGLE_AUTHOR,
         authorData: data.results[0] 
@@ -34,6 +35,14 @@ var AuthorActions = {
     });
   },
 
+  setEditFormState: function(dataObj){
+    
+    console.log(dataObj)
+    Dispatcher.dispatch({
+      actionType: ActionTypes.SET_EDIT_FORM_UI_STATE, 
+      authorData: dataObj
+    })
+  }
 
 
 }
