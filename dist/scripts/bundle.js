@@ -47362,10 +47362,9 @@ var AuthorActions = {
   },
 
   setEditFormState: function(dataObj){
-    
-    console.log(dataObj)
+    console.log('setting edit form state..')
     Dispatcher.dispatch({
-      actionType: ActionTypes.SET_EDIT_FORM_UI_STATE, 
+      actionType: ActionTypes.EDIT_FORM_UPDATE_UI, 
       authorData: dataObj
     })
   }
@@ -47480,24 +47479,19 @@ var EditAuthorForm = React.createClass({displayName: "EditAuthorForm",
 
   _modify_name_id: function(e){
     var inputEl = React.findDOMNode(e.target)
-    var authrData =  _.clone(this.state).authorData
+    var authrData =  _.clone(this.props.authorData)
 
     var propName = React.findDOMNode(e.target).dataset.field
 
-    console.log(propName)
     authrData[propName] = inputEl.value
     authrData.name_id = authrData.firstName.toLowerCase()+'-'+authrData.lastName.toLowerCase();
 
+    // console.log(authrData)
     AuthorActions.setEditFormState(authrData);
 
   },
 
-  componentDidMount: function(){
-    AuthorActions.setEditFormState(this.state.authorData);
-  },
-
   render: function(){
-    console.log('form  renderrrd')
     return (
       React.createElement("form", null, 
         React.createElement("table", {className: "table"}, 
@@ -47697,47 +47691,21 @@ var EditAuthorComponent = React.createClass({displayName: "EditAuthorComponent",
     console.log(e.target)
   },
 
-  _showLoading: function(){
-      return '...loading...'
-  },
-
-  _showForm: function(){
-    console.log('903090j2j0j')
-    return (
-      React.createElement(EditForm, {authorData: this.props.authorData})
-    )
-  },
-
-  _getLoadingMsgOrForm: function(){
-    if (Object.keys(this.props.authorData).length){
-      return this._showForm();
-
-    } else {
-      return this._showLoading();
-    }
-
-  },
-
   componentDidMount: function(){
     var autIdParam = this.props.params.autId
-    console.log("PARAM EDIT")
-    console.log(autIdParam)
     AuthorActions.getSingleAuthor({name_id: autIdParam})
-    
-    AuthorStore.addChangeListener(function(){
-      
-      var authorRecord = AuthorStore.getAuthorsList().find(function(aut){
-        return aut.name_id === autIdParam
-      })
 
-      console.log("authorRecord")
-      console.log(authorRecord)
+
+    AuthorStore.addChangeListener(function(){
+      console.log("AuthorStore UI State")
+
+      var authorRecord = AuthorStore.getEditFormUIState()
 
       this.setState({
         authorData: authorRecord
       })
 
-    }.bind(this));
+    }.bind(this))
   },
 
   render: function(){
@@ -47799,7 +47767,7 @@ var NewAuthorPage = React.createClass({displayName: "NewAuthorPage",
       errorMessages: errorProps
     });
 
-    console.log('IS FORM VALID?? ', formIsValid )
+    // console.log('IS FORM VALID?? ', formIsValid )
     return formIsValid
   },
 
@@ -47827,7 +47795,7 @@ var NewAuthorPage = React.createClass({displayName: "NewAuthorPage",
 
   componentDidMount: function(){
     AuthorStore.addChangeListener(function(){
-      console.log('new authore data:.....')
+      // console.log('new authore data:.....')
       if (this.form){
         this.form.firstName.value = '';
         this.form.lastName.value = '';
@@ -47837,7 +47805,7 @@ var NewAuthorPage = React.createClass({displayName: "NewAuthorPage",
   },
 
   componentWillUnmount: function(){
-    console.log('NewAuthor component unmounting...')
+    // console.log('NewAuthor component unmounting...')
     AuthorStore.removeChangeListener()
   },
 
@@ -48084,7 +48052,9 @@ var AuthorStore = _.assign({},EventEmitter.prototype, {
   //note, the methods below have here will have EventEmitter's `.emit` ,` .on`,`.removeChangeListener`,  methods
     
     addChangeListener: function(cb){
-      this.on('storeChange', cb );
+      var p = $.Deferred() 
+      p.resolve(this.on('storeChange', cb ));
+      return p
     },
 
     removeChangeListener: function(){
@@ -48102,7 +48072,7 @@ var AuthorStore = _.assign({},EventEmitter.prototype, {
     },
 
     getEditFormUIState: function(){
-      return _authorEditFormState
+      return _authorFormState
     }
 
 
@@ -48122,15 +48092,22 @@ Dispatcher.register( function(actionBlock) {
       AuthorStore.emitChange();
       break;
     case ActionTypes.GET_SINGLE_AUTHOR:
-      console.log("GET SINGLE Action PAYLOAD");
       console.log(actionBlock.authorData)
       _authorsList = []
       _authorsList.push(actionBlock.authorData)
+      _authorFormState = actionBlock.authorData
       AuthorStore.emitChange();
       break;
 
     case ActionTypes.EDIT_FORM_UPDATE_UI:
-      _authorEditFormState = actionBlock.authorData
+      console.log('ui state per store')
+      console.log(actionBlock.authorData)
+      if ( JSON.stringify(_authorFormState) !== JSON.stringify(actionBlock.authorData) ){
+        _authorFormState = actionBlock.authorData;
+        AuthorStore.emitChange();
+      }
+      console.log(_authorFormState)
+      break;
     default:
       //no operation
 

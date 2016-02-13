@@ -23,12 +23,15 @@ var AuthorStore = _.assign({},EventEmitter.prototype, {
   //note, the methods below have here will have EventEmitter's `.emit` ,` .on`,`.removeChangeListener`,  methods
     
     addChangeListener: function(cb){
-      this.on('storeChange', cb );
+      var p = $.Deferred() 
+      p.resolve(this.on('storeChange', cb ));
+      return p
     },
 
-    removeChangeListener: function(){
+    removeChangeListener: function(cb){
+      var cb_fn = cb || function(){}
       console.log('change listener removed')
-      this.removeListener('storeChange',function(){});
+      this.removeListener('storeChange', cb_fn);
     },
 
     emitChange: function(){
@@ -41,7 +44,7 @@ var AuthorStore = _.assign({},EventEmitter.prototype, {
     },
 
     getEditFormUIState: function(){
-      return _authorEditFormState
+      return _authorFormState
     }
 
 
@@ -61,15 +64,22 @@ Dispatcher.register( function(actionBlock) {
       AuthorStore.emitChange();
       break;
     case ActionTypes.GET_SINGLE_AUTHOR:
-      console.log("GET SINGLE Action PAYLOAD");
       console.log(actionBlock.authorData)
       _authorsList = []
       _authorsList.push(actionBlock.authorData)
+      _authorFormState = actionBlock.authorData
       AuthorStore.emitChange();
       break;
 
     case ActionTypes.EDIT_FORM_UPDATE_UI:
-      _authorEditFormState = actionBlock.authorData
+      console.log('ui state per store')
+      console.log(actionBlock.authorData)
+      if ( JSON.stringify(_authorFormState) !== JSON.stringify(actionBlock.authorData) ){
+        _authorFormState = actionBlock.authorData;
+        AuthorStore.emitChange();
+      }
+      console.log(_authorFormState)
+      break;
     default:
       //no operation
 

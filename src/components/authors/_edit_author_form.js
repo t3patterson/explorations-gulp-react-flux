@@ -8,24 +8,19 @@ var EditAuthorForm = React.createClass({
 
   _modify_name_id: function(e){
     var inputEl = React.findDOMNode(e.target)
-    var authrData =  _.clone(this.state).authorData
+    var authrData =  _.clone(this.props.authorData)
 
     var propName = React.findDOMNode(e.target).dataset.field
 
-    console.log(propName)
     authrData[propName] = inputEl.value
     authrData.name_id = authrData.firstName.toLowerCase()+'-'+authrData.lastName.toLowerCase();
 
+    // console.log(authrData)
     AuthorActions.setEditFormState(authrData);
 
   },
 
-  componentDidMount: function(){
-    AuthorActions.setEditFormState(this.state.authorData);
-  },
-
   render: function(){
-    console.log('form  renderrrd')
     return (
       <form>
         <table className="table">

@@ -44,7 +44,7 @@ var NewAuthorPage = React.createClass({
       errorMessages: errorProps
     });
 
-    console.log('IS FORM VALID?? ', formIsValid )
+    // console.log('IS FORM VALID?? ', formIsValid )
     return formIsValid
   },
 
@@ -72,7 +72,7 @@ var NewAuthorPage = React.createClass({
 
   componentDidMount: function(){
     AuthorStore.addChangeListener(function(){
-      console.log('new authore data:.....')
+      // console.log('new authore data:.....')
       if (this.form){
         this.form.firstName.value = '';
         this.form.lastName.value = '';
@@ -82,7 +82,7 @@ var NewAuthorPage = React.createClass({
   },
 
   componentWillUnmount: function(){
-    console.log('NewAuthor component unmounting...')
+    // console.log('NewAuthor component unmounting...')
     AuthorStore.removeChangeListener()
   },
 

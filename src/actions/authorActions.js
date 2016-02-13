@@ -36,10 +36,9 @@ var AuthorActions = {
   },
 
   setEditFormState: function(dataObj){
-    
-    console.log(dataObj)
+    console.log('setting edit form state..')
     Dispatcher.dispatch({
-      actionType: ActionTypes.SET_EDIT_FORM_UI_STATE, 
+      actionType: ActionTypes.EDIT_FORM_UPDATE_UI, 
       authorData: dataObj
     })
   }
