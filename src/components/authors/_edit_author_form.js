@@ -37,6 +37,7 @@ var EditAuthorForm = React.createClass({
            <th className="active">First Name</th>
            <td>
               <input 
+                id={'firstName'}
                 defaultValue={this.props.authorData.firstName}  
                 className="form-control" 
                 data-field={"firstName"}
@@ -46,7 +47,8 @@ var EditAuthorForm = React.createClass({
          <tr>
            <th className="active">Last Name</th>
            <td>
-            <input 
+            <input
+              id={'lastName'}
               defaultValue={this.props.authorData.lastName} 
               className="form-control" 
               data-field={"lastName"} 
@@ -59,7 +61,7 @@ var EditAuthorForm = React.createClass({
          </tr>
          <tr>
            <th className="active">Age</th>
-           <td><input defaultValue={this.props.authorData.age} className="form-control" /></td>
+           <td><input id={'age'} defaultValue={this.props.authorData.age} className="form-control" /></td>
          </tr>
          <tr>
            <th className="active">Status</th>

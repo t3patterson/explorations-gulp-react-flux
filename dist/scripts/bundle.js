@@ -47513,6 +47513,7 @@ var EditAuthorForm = React.createClass({displayName: "EditAuthorForm",
            React.createElement("th", {className: "active"}, "First Name"), 
            React.createElement("td", null, 
               React.createElement("input", {
+                id: 'firstName', 
                 defaultValue: this.props.authorData.firstName, 
                 className: "form-control", 
                 "data-field": "firstName", 
@@ -47523,6 +47524,7 @@ var EditAuthorForm = React.createClass({displayName: "EditAuthorForm",
            React.createElement("th", {className: "active"}, "Last Name"), 
            React.createElement("td", null, 
             React.createElement("input", {
+              id: 'lastName', 
               defaultValue: this.props.authorData.lastName, 
               className: "form-control", 
               "data-field": "lastName", 
@@ -47535,7 +47537,7 @@ var EditAuthorForm = React.createClass({displayName: "EditAuthorForm",
          ), 
          React.createElement("tr", null, 
            React.createElement("th", {className: "active"}, "Age"), 
-           React.createElement("td", null, React.createElement("input", {defaultValue: this.props.authorData.age, className: "form-control"}))
+           React.createElement("td", null, React.createElement("input", {id: 'age', defaultValue: this.props.authorData.age, className: "form-control"}))
          ), 
          React.createElement("tr", null, 
            React.createElement("th", {className: "active"}, "Status"), 
@@ -47915,30 +47917,43 @@ var React = require('react');
 
 var CheckBox = React.createClass({displayName: "CheckBox",
   getInitialState: function(){
+    console.log(this.props)
     return {
-      isChecked: this.props.isChecked
+      isChecked: this.props.isChecked || false
     }
   },
 
   _changeSelector: function(e){
-    var checkBox = React.findDOMNode(e.target)
-    
-    console.log(boxHasCheck.checked)
-    console.log(this)
-    if( boxHasCheck ){
-      checkBox = false
-      this.setState({
-        isChecked: false
-      })
-    } else {
-      checkBox = true
+    console.log( React.findDOMNode(e.target) )
+
+    if ( !this.state.isChecked ){
       this.setState({
         isChecked: true
       })
+    } else {
+      this.setState({
+        isChecked: false
+      })
     }
+    
+
+    //if the checkbox is 
+    // if( checkBox.checked ){
+    //   console.log('checked === false')
+    //   this.setState({
+    //     isChecked: true
+    //   })
+    // } else {
+    //   console.log('checked === false')
+    //   this.setState({
+    //     isChecked: false
+    //   })
+    // }
   },
 
   render: function(){
+    console.log('rendering checkedState')
+    console.log(this.state.isChecked)
     return(
       React.createElement("input", {type: "checkbox", checked: this.state.isChecked, "data-field": this.props.fieldName, className: "form-control", onChange: this._changeSelector})
     )
