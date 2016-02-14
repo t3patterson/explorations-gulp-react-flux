@@ -1,6 +1,8 @@
 var React = require('react');
 var _ = require('lodash')
 
+var CheckBoxComponent = require('../common/checkBox.js')
+
 var AuthorActions = require('../../actions/authorActions.js');
 
 
@@ -20,9 +22,16 @@ var EditAuthorForm = React.createClass({
 
   },
 
+  _handleSubmit: function(e){
+    e.preventDefault();
+    console.log('submishion');
+
+  },
+
   render: function(){
+
     return (
-      <form>
+      <form onSubmit={this._handleSubmit}>
         <table className="table">
          <tr>
            <th className="active">First Name</th>
@@ -54,7 +63,9 @@ var EditAuthorForm = React.createClass({
          </tr>
          <tr>
            <th className="active">Status</th>
-           <td><input defaultValue={this.props.authorData.active} className="form-control" /></td>
+           <td><CheckBoxComponent
+                  fieldName={'active'}
+                  isChecked={this.props.authorData.active}/> </td>
          </tr>
         </table>
         <input type="submit" className="btn btn-info"/>

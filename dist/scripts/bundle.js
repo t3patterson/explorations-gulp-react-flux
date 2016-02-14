@@ -47303,6 +47303,11 @@ function APIConstructor(){
           apiParams.contentType = 'application/json';
           apiParams.data = JSON.stringify(dataObject);
           break;
+
+        case ('update'):
+          apiParams.type = 'put'
+          apiParams.contentType = 'application/json';
+          apiParams.data = JSON.stringify(dataObject);
       }
 
       return $.ajax(apiParams)
@@ -47374,7 +47379,7 @@ var AuthorActions = {
 
 module.exports = AuthorActions;
 
-},{"../_API.js":205,"../constants/actionTypes.js":220,"../dispatcher/appDispatcher.js":221}],207:[function(require,module,exports){
+},{"../_API.js":205,"../constants/actionTypes.js":221,"../dispatcher/appDispatcher.js":222}],207:[function(require,module,exports){
 "use strict";
 var React = require('react');
 
@@ -47419,7 +47424,7 @@ var App = React.createClass({displayName: "App",
 
 module.exports = App
 
-},{"./common/header.js":217,"react":204,"react-router":34}],209:[function(require,module,exports){
+},{"./common/header.js":218,"react":204,"react-router":34}],209:[function(require,module,exports){
 var React = require('react');
 var Router = require('react-router');
 var Link = Router.Link;
@@ -47472,6 +47477,8 @@ module.exports = AuthorsList;
 var React = require('react');
 var _ = require('lodash')
 
+var CheckBoxComponent = require('../common/checkBox.js')
+
 var AuthorActions = require('../../actions/authorActions.js');
 
 
@@ -47491,9 +47498,16 @@ var EditAuthorForm = React.createClass({displayName: "EditAuthorForm",
 
   },
 
+  _handleSubmit: function(e){
+    e.preventDefault();
+    console.log('submishion');
+
+  },
+
   render: function(){
+
     return (
-      React.createElement("form", null, 
+      React.createElement("form", {onSubmit: this._handleSubmit}, 
         React.createElement("table", {className: "table"}, 
          React.createElement("tr", null, 
            React.createElement("th", {className: "active"}, "First Name"), 
@@ -47525,7 +47539,9 @@ var EditAuthorForm = React.createClass({displayName: "EditAuthorForm",
          ), 
          React.createElement("tr", null, 
            React.createElement("th", {className: "active"}, "Status"), 
-           React.createElement("td", null, React.createElement("input", {defaultValue: this.props.authorData.active, className: "form-control"}))
+           React.createElement("td", null, React.createElement(CheckBoxComponent, {
+                  fieldName: 'active', 
+                  isChecked: this.props.authorData.active}), " ")
          )
         ), 
         React.createElement("input", {type: "submit", className: "btn btn-info"})
@@ -47536,7 +47552,7 @@ var EditAuthorForm = React.createClass({displayName: "EditAuthorForm",
 
 module.exports = EditAuthorForm;
 
-},{"../../actions/authorActions.js":206,"lodash":8,"react":204}],211:[function(require,module,exports){
+},{"../../actions/authorActions.js":206,"../common/checkBox.js":217,"lodash":8,"react":204}],211:[function(require,module,exports){
 var React = require('react')
 
 var NewAuthorsForm = React.createClass({displayName: "NewAuthorsForm",
@@ -47620,7 +47636,7 @@ var ShowSingleAuthor = React.createClass({displayName: "ShowSingleAuthor",
 
 module.exports = ShowSingleAuthor;
 
-},{"../../actions/authorActions.js":206,"../../stores/authorStore.js":224,"react":204}],213:[function(require,module,exports){
+},{"../../actions/authorActions.js":206,"../../stores/authorStore.js":225,"react":204}],213:[function(require,module,exports){
 var React = require('react')
 
 var AuthorActions = require('../../actions/authorActions.js');
@@ -47671,7 +47687,7 @@ var AuthorsPage = React.createClass({displayName: "AuthorsPage",
 
 module.exports = AuthorsPage;
 
-},{"../../actions/authorActions.js":206,"../../stores/authorStore.js":224,"./_authors_tableComponent.js":209,"react":204}],214:[function(require,module,exports){
+},{"../../actions/authorActions.js":206,"../../stores/authorStore.js":225,"./_authors_tableComponent.js":209,"react":204}],214:[function(require,module,exports){
 var React = require('react')
 var EditForm = require('./_edit_author_form.js')
 
@@ -47693,19 +47709,34 @@ var EditAuthorComponent = React.createClass({displayName: "EditAuthorComponent",
 
   componentDidMount: function(){
     var autIdParam = this.props.params.autId
-    AuthorActions.getSingleAuthor({name_id: autIdParam})
+
+    AuthorActions.getSingleAuthor({
+      name_id: autIdParam
+    })
 
 
     AuthorStore.addChangeListener(function(){
       console.log("AuthorStore UI State")
+      console.log(AuthorStore.getEditFormUIState())
 
-      var authorRecord = AuthorStore.getEditFormUIState()
-
-      this.setState({
-        authorData: authorRecord
+      // make sure author record from DB matches the param
+      var authorRecord = AuthorStore.getAuthorsList().find(function(aut){
+        return aut.name_id === autIdParam
       })
 
+      //get the editform UI State
+      if (authorRecord){
+        var authorRecord = AuthorStore.getEditFormUIState()
+        
+        this.setState({
+          authorData: authorRecord
+        })
+      }     
     }.bind(this))
+  },
+
+  componentWillUnmount: function(){
+    AuthorStore.removeChangeListener()
   },
 
   render: function(){
@@ -47716,11 +47747,12 @@ var EditAuthorComponent = React.createClass({displayName: "EditAuthorComponent",
       return React.createElement("p", null, "...loading...")
     }
   }
+
 })
 
 module.exports = EditAuthorComponent;
 
-},{"../../actions/authorActions.js":206,"../../stores/authorStore.js":224,"./_edit_author_form.js":210,"react":204}],215:[function(require,module,exports){
+},{"../../actions/authorActions.js":206,"../../stores/authorStore.js":225,"./_edit_author_form.js":210,"react":204}],215:[function(require,module,exports){
 var React = require('react');
 var Router = require('react-router')
 
@@ -47821,7 +47853,7 @@ var NewAuthorPage = React.createClass({displayName: "NewAuthorPage",
 
 module.exports = NewAuthorPage;
 
-},{"../../_API.js":205,"../../actions/authorActions.js":206,"../../stores/authorStore.js":224,"./_new_author_form.js":211,"react":204,"react-router":34}],216:[function(require,module,exports){
+},{"../../_API.js":205,"../../actions/authorActions.js":206,"../../stores/authorStore.js":225,"./_new_author_form.js":211,"react":204,"react-router":34}],216:[function(require,module,exports){
 var React = require('react')
 
 var AuthorStore = require('../../stores/authorStore.js');
@@ -47876,7 +47908,51 @@ var ShowSingleAuthor = React.createClass({displayName: "ShowSingleAuthor",
 
 module.exports = ShowSingleAuthor;
 
-},{"../../actions/authorActions.js":206,"../../stores/authorStore.js":224,"./_single_author_display.js":212,"react":204}],217:[function(require,module,exports){
+},{"../../actions/authorActions.js":206,"../../stores/authorStore.js":225,"./_single_author_display.js":212,"react":204}],217:[function(require,module,exports){
+"use strict";
+
+var React = require('react');
+
+var CheckBox = React.createClass({displayName: "CheckBox",
+  getInitialState: function(){
+    return {
+      isChecked: this.props.isChecked
+    }
+  },
+
+  _changeSelector: function(e){
+    var checkBox = React.findDOMNode(e.target)
+    
+    console.log(boxHasCheck.checked)
+    console.log(this)
+    if( boxHasCheck ){
+      checkBox = false
+      this.setState({
+        isChecked: false
+      })
+    } else {
+      checkBox = true
+      this.setState({
+        isChecked: true
+      })
+    }
+  },
+
+  render: function(){
+    return(
+      React.createElement("input", {type: "checkbox", checked: this.state.isChecked, "data-field": this.props.fieldName, className: "form-control", onChange: this._changeSelector})
+    )
+  }
+})
+
+// NOTE: <Link> component
+// (1) <Link to= « name » >
+// (2) `name` was declared in <Route>
+
+
+module.exports = CheckBox
+
+},{"react":204}],218:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -47906,7 +47982,7 @@ var Header = React.createClass({displayName: "Header",
 
 module.exports = Header
 
-},{"react":204,"react-router":34}],218:[function(require,module,exports){
+},{"react":204,"react-router":34}],219:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -47924,7 +48000,7 @@ var Home = React.createClass({displayName: "Home",
 
 module.exports = Home
 
-},{"react":204}],219:[function(require,module,exports){
+},{"react":204}],220:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -47944,7 +48020,7 @@ var Home = React.createClass({displayName: "Home",
 
 module.exports = Home
 
-},{"react":204,"react-router":34}],220:[function(require,module,exports){
+},{"react":204,"react-router":34}],221:[function(require,module,exports){
 var keyMirror = require('react/lib/keyMirror');
 
 var ActionTypes = keyMirror({
@@ -47956,12 +48032,12 @@ var ActionTypes = keyMirror({
 
 module.exports = ActionTypes
 
-},{"react/lib/keyMirror":189}],221:[function(require,module,exports){
+},{"react/lib/keyMirror":189}],222:[function(require,module,exports){
 var Dispatcher = require('flux').Dispatcher;
 
 module.exports = new Dispatcher();
 
-},{"flux":3}],222:[function(require,module,exports){
+},{"flux":3}],223:[function(require,module,exports){
 /*eslint-disable strict*/
 
 // put jQuery in global namespace
@@ -47979,7 +48055,7 @@ Router.run(appRoutes, Router.HistoryLocation, function(Handler){
   React.render(React.createElement(Handler, null), document.querySelector('.container'));
 })
 
-},{"./routes.js":223,"jquery":7,"react":204,"react-router":34}],223:[function(require,module,exports){
+},{"./routes.js":224,"jquery":7,"react":204,"react-router":34}],224:[function(require,module,exports){
 "use strict"
 var React = require('react');
 //React-Router
@@ -48026,7 +48102,7 @@ var routes = (
 
 module.exports = routes;
 
-},{"./components/about/about_page.js":207,"./components/app.js":208,"./components/authors/authors_page.js":213,"./components/authors/single_author_edit.js":214,"./components/authors/single_author_new.js":215,"./components/authors/single_author_show.js":216,"./components/home_page.js":218,"./components/not_found_page.js":219,"react":204,"react-router":34}],224:[function(require,module,exports){
+},{"./components/about/about_page.js":207,"./components/app.js":208,"./components/authors/authors_page.js":213,"./components/authors/single_author_edit.js":214,"./components/authors/single_author_new.js":215,"./components/authors/single_author_show.js":216,"./components/home_page.js":219,"./components/not_found_page.js":220,"react":204,"react-router":34}],225:[function(require,module,exports){
 var Dispatcher = require('../dispatcher/appDispatcher.js');
 var _ = require('lodash');
 var EventEmitter = require('events').EventEmitter;
@@ -48057,9 +48133,10 @@ var AuthorStore = _.assign({},EventEmitter.prototype, {
       return p
     },
 
-    removeChangeListener: function(){
+    removeChangeListener: function(cb){
+      var cb_fn = cb || function(){}
       console.log('change listener removed')
-      this.removeListener('storeChange',function(){});
+      this.removeListener('storeChange', cb_fn);
     },
 
     emitChange: function(){
@@ -48116,4 +48193,4 @@ Dispatcher.register( function(actionBlock) {
 
 module.exports = AuthorStore;
 
-},{"../_API.js":205,"../constants/actionTypes.js":220,"../dispatcher/appDispatcher.js":221,"events":2,"lodash":8}]},{},[222]);
+},{"../_API.js":205,"../constants/actionTypes.js":221,"../dispatcher/appDispatcher.js":222,"events":2,"lodash":8}]},{},[223]);

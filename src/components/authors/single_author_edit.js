@@ -19,7 +19,10 @@ var EditAuthorComponent = React.createClass({
 
   componentDidMount: function(){
     var autIdParam = this.props.params.autId
-    AuthorActions.getSingleAuthor({name_id: autIdParam})
+
+    AuthorActions.getSingleAuthor({
+      name_id: autIdParam
+    })
 
 
     AuthorStore.addChangeListener(function(){
@@ -32,14 +35,14 @@ var EditAuthorComponent = React.createClass({
       })
 
       //get the editform UI State
-      if (authRecord){
+      if (authorRecord){
         var authorRecord = AuthorStore.getEditFormUIState()
+        
         this.setState({
           authorData: authorRecord
         })
       }     
-
-    }
+    }.bind(this))
   },
 
   componentWillUnmount: function(){
@@ -54,6 +57,7 @@ var EditAuthorComponent = React.createClass({
       return <p>...loading...</p>
     }
   }
+
 })
 
 module.exports = EditAuthorComponent;

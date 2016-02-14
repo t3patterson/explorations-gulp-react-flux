@@ -29,6 +29,11 @@ function APIConstructor(){
           apiParams.contentType = 'application/json';
           apiParams.data = JSON.stringify(dataObject);
           break;
+
+        case ('update'):
+          apiParams.type = 'put'
+          apiParams.contentType = 'application/json';
+          apiParams.data = JSON.stringify(dataObject);
       }
 
       return $.ajax(apiParams)
