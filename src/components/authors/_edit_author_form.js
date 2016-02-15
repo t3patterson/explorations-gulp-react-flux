@@ -1,9 +1,11 @@
 var React = require('react');
 var _ = require('lodash')
 
+var AuthorActions = require('../../actions/authorActions.js');
+
 var CheckBoxComponent = require('../common/checkBox.js')
 
-var AuthorActions = require('../../actions/authorActions.js');
+var superForEach = require('../../_utils.js').superForEach
 
 
 var EditAuthorForm = React.createClass({
@@ -25,10 +27,20 @@ var EditAuthorForm = React.createClass({
   _handleSubmit: function(e){
     e.preventDefault();
     console.log('submishion');
+    console.log(e.target.firstName)
+
+    var inputEls = React.findDOMNode(e.target).querySelectorAll('input')
+
+
+    superForEach(inputEls,function(x){
+      console.log(x.id)
+    })
+
 
   },
 
   render: function(){
+    console.log(Object.prototype.superForEach)
 
     return (
       <form onSubmit={this._handleSubmit}>
@@ -56,12 +68,18 @@ var EditAuthorForm = React.createClass({
             </td>
          </tr>
          <tr>
-           <th className="active">New User Name</th>
-           <td><em>{this.props.authorData.name_id}</em></td>
+            <th className="active">New User Name</th>
+            <td>
+              <em><input id={'name_id'} 
+                value={this.props.authorData.name_id} 
+                className="form-control"/></em>
+            </td>
          </tr>
          <tr>
            <th className="active">Age</th>
-           <td><input id={'age'} defaultValue={this.props.authorData.age} className="form-control" /></td>
+           <td><input 
+                id={'age'} 
+                defaultValue={this.props.authorData.age} className="form-control" /></td>
          </tr>
          <tr>
            <th className="active">Status</th>

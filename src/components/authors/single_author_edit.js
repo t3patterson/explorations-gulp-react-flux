@@ -4,6 +4,8 @@ var EditForm = require('./_edit_author_form.js')
 var AuthorStore = require('../../stores/authorStore.js');
 var AuthorActions = require('../../actions/authorActions.js');
 
+var superForEach = require('../../_utils.js')
+
 var EditAuthorComponent = React.createClass({
 
   getInitialState: function(){
@@ -12,11 +14,6 @@ var EditAuthorComponent = React.createClass({
     }
   },
  
-  _handleSubmit: function(e){
-    e.preventDefault();
-    console.log(e.target)
-  },
-
   componentDidMount: function(){
     var autIdParam = this.props.params.autId
 

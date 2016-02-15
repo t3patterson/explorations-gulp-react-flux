@@ -11,7 +11,6 @@ var CheckBox = React.createClass({
   },
 
   _changeSelector: function(e){
-    console.log( React.findDOMNode(e.target) )
 
     if ( !this.state.isChecked ){
       this.setState({
@@ -39,10 +38,13 @@ var CheckBox = React.createClass({
   },
 
   render: function(){
-    console.log('rendering checkedState')
-    console.log(this.state.isChecked)
     return(
-      <input type="checkbox" checked={this.state.isChecked} data-field={this.props.fieldName} className="form-control" onChange={this._changeSelector} />
+      <input type="checkbox" 
+        id={this.props.fieldName} 
+        checked={this.state.isChecked} 
+        data-field={this.props.fieldName} 
+        className="form-control" 
+        onChange={this._changeSelector} />
     )
   }
 })
