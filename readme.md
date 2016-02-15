@@ -92,3 +92,5 @@ also the components (App, Home, About)
 
 
 ##React Forms
+- Create components for CheckBox & TextArea
+

@@ -5,9 +5,6 @@ var AuthorActions = require('../../actions/authorActions.js');
 
 var CheckBoxComponent = require('../common/checkBox.js')
 
-var superForEach = require('../../_utils.js').superForEach
-
-
 var EditAuthorForm = React.createClass({
 
   _modify_name_id: function(e){
@@ -24,26 +21,10 @@ var EditAuthorForm = React.createClass({
 
   },
 
-  _handleSubmit: function(e){
-    e.preventDefault();
-    console.log('submishion');
-    console.log(e.target.firstName)
-
-    var inputEls = React.findDOMNode(e.target).querySelectorAll('input')
-
-
-    superForEach(inputEls,function(x){
-      console.log(x.id)
-    })
-
-
-  },
-
+ 
   render: function(){
-    console.log(Object.prototype.superForEach)
-
     return (
-      <form onSubmit={this._handleSubmit}>
+      <form onSubmit={this.props.handleSubmit}>
         <table className="table">
          <tr>
            <th className="active">First Name</th>

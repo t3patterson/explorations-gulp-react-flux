@@ -47305,9 +47305,16 @@ function APIConstructor(){
           break;
 
         case ('update'):
+          console.log(dataObject)
           apiParams.type = 'put'
+          apiParams.url += '/'+dataObject.objectId
           apiParams.contentType = 'application/json';
+          delete dataObject.objectId;
+          delete dataObject.updatedAt;
+          delete dataObject.createdAt;
+
           apiParams.data = JSON.stringify(dataObject);
+          console.log(apiParams)
       }
 
       return $.ajax(apiParams)
@@ -47319,7 +47326,8 @@ function APIConstructor(){
   return {
     getAll: requestType('getAll'), //returns a FUNCTION that, when executed, will ajax-request+return a promise
     getSingle: requestType('getSingle'),
-    post: requestType('post')
+    post: requestType('post'),
+    update: requestType('update')
   }
 }
 
@@ -47388,11 +47396,30 @@ var AuthorActions = {
     });
   },
 
+  updateSingleAuthor: function(dataObj){
+    console.log(dataObj)
+    API.update(dataObj).then(function(d){
+      console.log('Action saved to db successfully!')
+      console.log(d)
+      Dispatcher.dispatch({
+        actionType: ActionTypes.UPDATE_AUTHOR,
+        authorData: d
+      })
+    })
+
+  },
+
   setEditFormState: function(dataObj){
     console.log('setting edit form state..')
     Dispatcher.dispatch({
       actionType: ActionTypes.EDIT_FORM_UPDATE_UI, 
       authorData: dataObj
+    })
+  },
+
+  resetEditFormState: function(){
+    Dispatcher.dispatch({
+      actionType: ActionTypes.RESET_EDIT_FORM_STATE
     })
   }
 
@@ -47454,7 +47481,7 @@ var Link = Router.Link;
 var AuthorsList = React.createClass({displayName: "AuthorsList",
   
   propTypes: {
-    authors: React.PropTypes.array.isRequired
+    authorsData: React.PropTypes.array.isRequired
   },
 
   _createAuthorRows: function(auth,i){
@@ -47486,7 +47513,7 @@ var AuthorsList = React.createClass({displayName: "AuthorsList",
           )
         ), 
         React.createElement("tbody", null, 
-          this.props.authorsData.map(this._createAuthorRows)
+          this.props.authorsList.map(this._createAuthorRows)
         )
       )
     )
@@ -47502,9 +47529,6 @@ var _ = require('lodash')
 var AuthorActions = require('../../actions/authorActions.js');
 
 var CheckBoxComponent = require('../common/checkBox.js')
-
-var superForEach = require('../../_utils.js').superForEach
-
 
 var EditAuthorForm = React.createClass({displayName: "EditAuthorForm",
 
@@ -47522,26 +47546,10 @@ var EditAuthorForm = React.createClass({displayName: "EditAuthorForm",
 
   },
 
-  _handleSubmit: function(e){
-    e.preventDefault();
-    console.log('submishion');
-    console.log(e.target.firstName)
-
-    var inputEls = React.findDOMNode(e.target).querySelectorAll('input')
-
-
-    superForEach(inputEls,function(x){
-      console.log(x.id)
-    })
-
-
-  },
-
+ 
   render: function(){
-    console.log(Object.prototype.superForEach)
-
     return (
-      React.createElement("form", {onSubmit: this._handleSubmit}, 
+      React.createElement("form", {onSubmit: this.props.handleSubmit}, 
         React.createElement("table", {className: "table"}, 
          React.createElement("tr", null, 
            React.createElement("th", {className: "active"}, "First Name"), 
@@ -47594,7 +47602,7 @@ var EditAuthorForm = React.createClass({displayName: "EditAuthorForm",
 
 module.exports = EditAuthorForm;
 
-},{"../../_utils.js":206,"../../actions/authorActions.js":207,"../common/checkBox.js":218,"lodash":8,"react":204}],212:[function(require,module,exports){
+},{"../../actions/authorActions.js":207,"../common/checkBox.js":218,"lodash":8,"react":204}],212:[function(require,module,exports){
 var React = require('react')
 
 var NewAuthorsForm = React.createClass({displayName: "NewAuthorsForm",
@@ -47691,7 +47699,7 @@ var AuthorsPage = React.createClass({displayName: "AuthorsPage",
   
   getInitialState: function(){
     return {
-      authors: []
+      authorsList: []
     }
   },
 
@@ -47712,7 +47720,7 @@ var AuthorsPage = React.createClass({displayName: "AuthorsPage",
     AuthorStore.addChangeListener(function(){
         console.log('changeListenerRuns')
         console.log(AuthorStore.getAuthorsList())
-        self.setState({ authors: AuthorStore.getAuthorsList() });
+        self.setState({ authorsList: AuthorStore.getAuthorsList() });
       }
     )
   },
@@ -47721,7 +47729,7 @@ var AuthorsPage = React.createClass({displayName: "AuthorsPage",
     return (
       React.createElement("div", null, 
         React.createElement("h1", null, "Authors"), 
-        React.createElement(AuthorsList, {authorsData: this.state.authors})
+        React.createElement(AuthorsList, {authorsList: this.state.authorsList || []})
       )
     );
   }
@@ -47730,22 +47738,61 @@ var AuthorsPage = React.createClass({displayName: "AuthorsPage",
 module.exports = AuthorsPage;
 
 },{"../../actions/authorActions.js":207,"../../stores/authorStore.js":226,"./_authors_tableComponent.js":210,"react":204}],215:[function(require,module,exports){
-var React = require('react')
+var React = require('react');
+var Router = require('react-router')
 var EditForm = require('./_edit_author_form.js')
 
 var AuthorStore = require('../../stores/authorStore.js');
 var AuthorActions = require('../../actions/authorActions.js');
 
-var superForEach = require('../../_utils.js')
+var superForEach = require('../../_utils.js').superForEach
 
 var EditAuthorComponent = React.createClass({displayName: "EditAuthorComponent",
 
+  mixins: [
+    Router.Navigation
+  ],
+
   getInitialState: function(){
     return {
-      authorData: {} 
+      authorData: {}
     }
   },
- 
+
+  _handleSubmit: function(e){
+    e.preventDefault();
+
+    console.log('submishion');
+
+    var inputEls = React.findDOMNode(e.target).querySelectorAll('input')
+
+    var userObj = {}
+    
+    superForEach(inputEls,function(el){
+      if (el.id.length){
+        
+        switch(el.type){
+          case ('checkbox'):
+            userObj[el.id] = el.checked
+            break;
+          default:
+            userObj[el.id] =  isNaN(el.value) ? el.value : parseInt(el.value,10);
+        }
+      }
+    })
+    
+    console.log('Author data is....')
+    console.log(this.state.authorData)
+    
+    var updatedUser = _.extend(this.state.authorData, userObj);
+    
+    console.log('...Updated User is this...')
+    console.log(updatedUser);
+    AuthorActions.updateSingleAuthor(updatedUser)
+  },
+
+
+
   componentDidMount: function(){
     var autIdParam = this.props.params.autId
 
@@ -47755,22 +47802,36 @@ var EditAuthorComponent = React.createClass({displayName: "EditAuthorComponent",
 
 
     AuthorStore.addChangeListener(function(){
-      console.log("AuthorStore UI State")
-      console.log(AuthorStore.getEditFormUIState())
-
-      // make sure author record from DB matches the param
-      var authorRecord = AuthorStore.getAuthorsList().find(function(aut){
-        return aut.name_id === autIdParam
-      })
-
-      //get the editform UI State
-      if (authorRecord){
-        var authorRecord = AuthorStore.getEditFormUIState()
+      //if record was updated, transition to another page
+      if( AuthorStore.recordWasUpdated() ){
         
-        this.setState({
-          authorData: authorRecord
+        console.log('Record WAS UPDATED!')
+        this.transitionTo('authors');
+      
+      } else {
+        //Test for changes to form-state
+
+        var authorRecord = AuthorStore.getAuthorsList().find(function(aut){
+          return aut.name_id === autIdParam
         })
-      }     
+
+        console.log('Record Fresh-->') 
+        console.log(authorRecord)
+
+
+        //get the editform UI State
+        if (authorRecord){
+
+          var authorRecord = AuthorStore.getEditFormUIState()
+          
+          console.log('setting state, k...')
+          console.log(this.state)
+          this.setState({
+            authorData: authorRecord
+          })
+        }
+      }
+
     }.bind(this))
   },
 
@@ -47779,19 +47840,18 @@ var EditAuthorComponent = React.createClass({displayName: "EditAuthorComponent",
   },
 
   render: function(){
-
+    console.log(this.state.authorData )
     if ( Object.keys( this.state.authorData ).length ){
-      return React.createElement(EditForm, {authorData: this.state.authorData})
+      return React.createElement(EditForm, {authorData: this.state.authorData, handleSubmit: this._handleSubmit})
     } else {
       return React.createElement("p", null, "...loading...")
     }
   }
-
 })
 
 module.exports = EditAuthorComponent;
 
-},{"../../_utils.js":206,"../../actions/authorActions.js":207,"../../stores/authorStore.js":226,"./_edit_author_form.js":211,"react":204}],216:[function(require,module,exports){
+},{"../../_utils.js":206,"../../actions/authorActions.js":207,"../../stores/authorStore.js":226,"./_edit_author_form.js":211,"react":204,"react-router":34}],216:[function(require,module,exports){
 var React = require('react');
 var Router = require('react-router')
 
@@ -48079,9 +48139,13 @@ var keyMirror = require('react/lib/keyMirror');
 
 var ActionTypes = keyMirror({
   CREATE_AUTHOR: null,
+  
   GET_SINGLE_AUTHOR: null,
   GET_ALL_AUTHORS: null,
-  SET_EDIT_FORM_UI_STATE: null
+  
+  UPDATE_AUTHOR: null,
+  SET_EDIT_FORM_UI_STATE: null,
+  RESET_EDIT_FORM_STATE: null
 })
 
 module.exports = ActionTypes
@@ -48169,10 +48233,13 @@ var API = require('../_API.js');
 //----------------------------------------------------------
 // THE COLLECTION -- Dispatcher Updates and Store Returns to Component
 //----------------------------------------------------------
-var _authorsList = []
-var _author = ""
+var _authorsList = [];
+var _author = "";
 
-var _authorFormState = {
+var _recordHasBeenUpdated = false
+
+//author getting edited
+var _authorEditFormState = {
 
 }
 
@@ -48194,7 +48261,7 @@ var AuthorStore = _.assign({},EventEmitter.prototype, {
       this.removeListener('storeChange', cb_fn);
     },
 
-    emitChange: function(){
+    emitChange: function(moreInfo){
       this.emit('storeChange');
     },
    // -----------
@@ -48204,9 +48271,12 @@ var AuthorStore = _.assign({},EventEmitter.prototype, {
     },
 
     getEditFormUIState: function(){
-      return _authorFormState
-    }
+      return _authorEditFormState
+    },
 
+    recordWasUpdated: function(){
+      return _recordHasBeenUpdated;
+    },
 
 });
 
@@ -48223,23 +48293,33 @@ Dispatcher.register( function(actionBlock) {
       newAuthor = actionBlock.authorData;
       AuthorStore.emitChange();
       break;
+    
     case ActionTypes.GET_SINGLE_AUTHOR:
       console.log(actionBlock.authorData)
       _authorsList = []
       _authorsList.push(actionBlock.authorData)
-      _authorFormState = actionBlock.authorData
+      _authorEditFormState = actionBlock.authorData
       AuthorStore.emitChange();
       break;
 
+    case ActionTypes.UPDATE_AUTHOR:
+      _recordHasBeenUpdated = true;
+      AuthorStore.emitChange();
+      break;
     case ActionTypes.EDIT_FORM_UPDATE_UI:
       console.log('ui state per store')
       console.log(actionBlock.authorData)
-      if ( JSON.stringify(_authorFormState) !== JSON.stringify(actionBlock.authorData) ){
-        _authorFormState = actionBlock.authorData;
+      if ( JSON.stringify(_authorEditFormState) !== JSON.stringify(actionBlock.authorData) ){
+        _authorEditFormState = actionBlock.authorData;
         AuthorStore.emitChange();
       }
-      console.log(_authorFormState)
       break;
+    
+    case ActionTypes.RESET_EDIT_FORM_STATE:
+      _recordHasBeenUpdated = false;
+      _authorEditFormState = {}
+      break;
+    
     default:
       //no operation
 

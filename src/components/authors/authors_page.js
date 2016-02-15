@@ -10,7 +10,7 @@ var AuthorsPage = React.createClass({
   
   getInitialState: function(){
     return {
-      authors: []
+      authorsList: []
     }
   },
 
@@ -31,7 +31,7 @@ var AuthorsPage = React.createClass({
     AuthorStore.addChangeListener(function(){
         console.log('changeListenerRuns')
         console.log(AuthorStore.getAuthorsList())
-        self.setState({ authors: AuthorStore.getAuthorsList() });
+        self.setState({ authorsList: AuthorStore.getAuthorsList() });
       }
     )
   },
@@ -40,7 +40,7 @@ var AuthorsPage = React.createClass({
     return (
       <div>
         <h1>Authors</h1>
-        <AuthorsList authorsData={this.state.authors} />
+        <AuthorsList authorsList={this.state.authorsList || []} />
       </div>
     );
   }

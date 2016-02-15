@@ -9,10 +9,13 @@ var API = require('../_API.js');
 //----------------------------------------------------------
 // THE COLLECTION -- Dispatcher Updates and Store Returns to Component
 //----------------------------------------------------------
-var _authorsList = []
-var _author = ""
+var _authorsList = [];
+var _author = "";
 
-var _authorFormState = {
+var _recordHasBeenUpdated = false
+
+//author getting edited
+var _authorEditFormState = {
 
 }
 
@@ -34,7 +37,7 @@ var AuthorStore = _.assign({},EventEmitter.prototype, {
       this.removeListener('storeChange', cb_fn);
     },
 
-    emitChange: function(){
+    emitChange: function(moreInfo){
       this.emit('storeChange');
     },
    // -----------
@@ -44,9 +47,12 @@ var AuthorStore = _.assign({},EventEmitter.prototype, {
     },
 
     getEditFormUIState: function(){
-      return _authorFormState
-    }
+      return _authorEditFormState
+    },
 
+    recordWasUpdated: function(){
+      return _recordHasBeenUpdated;
+    },
 
 });
 
@@ -63,23 +69,33 @@ Dispatcher.register( function(actionBlock) {
       newAuthor = actionBlock.authorData;
       AuthorStore.emitChange();
       break;
+    
     case ActionTypes.GET_SINGLE_AUTHOR:
       console.log(actionBlock.authorData)
       _authorsList = []
       _authorsList.push(actionBlock.authorData)
-      _authorFormState = actionBlock.authorData
+      _authorEditFormState = actionBlock.authorData
       AuthorStore.emitChange();
       break;
 
+    case ActionTypes.UPDATE_AUTHOR:
+      _recordHasBeenUpdated = true;
+      AuthorStore.emitChange();
+      break;
     case ActionTypes.EDIT_FORM_UPDATE_UI:
       console.log('ui state per store')
       console.log(actionBlock.authorData)
-      if ( JSON.stringify(_authorFormState) !== JSON.stringify(actionBlock.authorData) ){
-        _authorFormState = actionBlock.authorData;
+      if ( JSON.stringify(_authorEditFormState) !== JSON.stringify(actionBlock.authorData) ){
+        _authorEditFormState = actionBlock.authorData;
         AuthorStore.emitChange();
       }
-      console.log(_authorFormState)
       break;
+    
+    case ActionTypes.RESET_EDIT_FORM_STATE:
+      _recordHasBeenUpdated = false;
+      _authorEditFormState = {}
+      break;
+    
     default:
       //no operation
 

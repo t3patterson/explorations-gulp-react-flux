@@ -5,7 +5,7 @@ var Link = Router.Link;
 var AuthorsList = React.createClass({
   
   propTypes: {
-    authors: React.PropTypes.array.isRequired
+    authorsData: React.PropTypes.array.isRequired
   },
 
   _createAuthorRows: function(auth,i){
@@ -37,7 +37,7 @@ var AuthorsList = React.createClass({
           </tr>
         </thead>
         <tbody>
-          {this.props.authorsData.map(this._createAuthorRows)}
+          {this.props.authorsList.map(this._createAuthorRows)}
         </tbody>
       </table>
     )

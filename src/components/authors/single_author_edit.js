@@ -1,19 +1,58 @@
-var React = require('react')
+var React = require('react');
+var Router = require('react-router')
 var EditForm = require('./_edit_author_form.js')
 
 var AuthorStore = require('../../stores/authorStore.js');
 var AuthorActions = require('../../actions/authorActions.js');
 
-var superForEach = require('../../_utils.js')
+var superForEach = require('../../_utils.js').superForEach
 
 var EditAuthorComponent = React.createClass({
 
+  mixins: [
+    Router.Navigation
+  ],
+
   getInitialState: function(){
     return {
-      authorData: {} 
+      authorData: {}
     }
   },
- 
+
+  _handleSubmit: function(e){
+    e.preventDefault();
+
+    console.log('submishion');
+
+    var inputEls = React.findDOMNode(e.target).querySelectorAll('input')
+
+    var userObj = {}
+    
+    superForEach(inputEls,function(el){
+      if (el.id.length){
+        
+        switch(el.type){
+          case ('checkbox'):
+            userObj[el.id] = el.checked
+            break;
+          default:
+            userObj[el.id] =  isNaN(el.value) ? el.value : parseInt(el.value,10);
+        }
+      }
+    })
+    
+    console.log('Author data is....')
+    console.log(this.state.authorData)
+    
+    var updatedUser = _.extend(this.state.authorData, userObj);
+    
+    console.log('...Updated User is this...')
+    console.log(updatedUser);
+    AuthorActions.updateSingleAuthor(updatedUser)
+  },
+
+
+
   componentDidMount: function(){
     var autIdParam = this.props.params.autId
 
@@ -23,22 +62,36 @@ var EditAuthorComponent = React.createClass({
 
 
     AuthorStore.addChangeListener(function(){
-      console.log("AuthorStore UI State")
-      console.log(AuthorStore.getEditFormUIState())
-
-      // make sure author record from DB matches the param
-      var authorRecord = AuthorStore.getAuthorsList().find(function(aut){
-        return aut.name_id === autIdParam
-      })
-
-      //get the editform UI State
-      if (authorRecord){
-        var authorRecord = AuthorStore.getEditFormUIState()
+      //if record was updated, transition to another page
+      if( AuthorStore.recordWasUpdated() ){
         
-        this.setState({
-          authorData: authorRecord
+        console.log('Record WAS UPDATED!')
+        this.transitionTo('authors');
+      
+      } else {
+        //Test for changes to form-state
+
+        var authorRecord = AuthorStore.getAuthorsList().find(function(aut){
+          return aut.name_id === autIdParam
         })
-      }     
+
+        console.log('Record Fresh-->') 
+        console.log(authorRecord)
+
+
+        //get the editform UI State
+        if (authorRecord){
+
+          var authorRecord = AuthorStore.getEditFormUIState()
+          
+          console.log('setting state, k...')
+          console.log(this.state)
+          this.setState({
+            authorData: authorRecord
+          })
+        }
+      }
+
     }.bind(this))
   },
 
@@ -47,14 +100,13 @@ var EditAuthorComponent = React.createClass({
   },
 
   render: function(){
-
+    console.log(this.state.authorData )
     if ( Object.keys( this.state.authorData ).length ){
-      return <EditForm authorData={this.state.authorData}/>
+      return <EditForm authorData={this.state.authorData} handleSubmit={this._handleSubmit}/>
     } else {
       return <p>...loading...</p>
     }
   }
-
 })
 
 module.exports = EditAuthorComponent;
