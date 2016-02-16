@@ -7,13 +7,22 @@ var AuthorDisplay = require('./_single_author_display.js')
 
 var ShowSingleAuthor = React.createClass({
   getInitialState: function(){
+    console.log("SET INTIAL STATE SINGLE AUTHOR!")
     return {
       authorData: {}
     }
   },
 
+  componentWillUnmount: function(){
+    console.log('SHOW-SINGLE component unmounted!')
+    console.log('xxxxxxxxxxxxx')
+    AuthorStore.removeChangeListener(function(){
+      console.log('single-page ++ change listener REMOVED ')
+    });
+  },
 
   componentDidMount: function(){
+    console.log(':::Show SINGLE authorRECORD MOUNTED:::')
     console.log(this.props.params)
     var autIdParam = this.props.params.autId
     
@@ -32,6 +41,8 @@ var ShowSingleAuthor = React.createClass({
       this.setState({
         authorData: authorRecord
       })
+      console.log(this.state);
+
 
 
     }.bind(this));
@@ -40,6 +51,7 @@ var ShowSingleAuthor = React.createClass({
   },
 
   render: function(){
+    console.log('^^SHOW SINGLE RENDERING^^')
     console.log(Object.keys(this.state.authorData).length )
 
     if ( Object.keys(this.state.authorData).length ) {

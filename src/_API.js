@@ -1,8 +1,10 @@
 "use strict"
 
+var apiURL = 'https://api.parse.com/1/classes/authors';
+
+
 function APIConstructor(){
   var apiParams = {
-    url: 'https://api.parse.com/1/classes/authors',
     headers: {
       'X-Parse-Application-Id': 'gGt3i515AVidNfMcYL3PfQOInNcYZ5tDdAKJrYWF',
       'X-Parse-REST-API-Key': 'VtD6G0eBUNKcaMh6SxmcPwuvGMCZBzxFuKlyEeoI'
@@ -15,13 +17,15 @@ function APIConstructor(){
 
       switch (reqType) {
         case ('getAll'):
-          apiParams.type = 'get'
-          apiParams.data = ''
+          apiParams.url = apiURL;
+          apiParams.type = 'get';
+          apiParams.data = '';
           break;
 
         case ('getSingle'):
-          apiParams.type = 'get'
-          apiParams.data = 'where='+JSON.stringify(dataObject)
+          apiParams.url = apiURL;
+          apiParams.type = 'get';
+          apiParams.data = 'where='+JSON.stringify(dataObject);
           break;
 
         case ('post'):
@@ -32,23 +36,23 @@ function APIConstructor(){
 
         case ('update'):
           console.log(dataObject)
-          apiParams.type = 'put'
-          apiParams.url += '/'+dataObject.objectId
+          apiParams.type = 'put';
+          apiParams.url = apiURL + '/'+dataObject.objectId;
           apiParams.contentType = 'application/json';
           delete dataObject.objectId;
           delete dataObject.updatedAt;
           delete dataObject.createdAt;
 
           apiParams.data = JSON.stringify(dataObject);
-          console.log(apiParams)
+          console.log(apiParams);
           break;
         
         case ('delete'):
-          apiParams.url += '/' + dataObject.objectId
-          apiParams.type = 'delete'
+          apiParams.url += apiURL + '/' + dataObject.objectId;
+          apiParams.type = 'delete';
       }
 
-      return $.ajax(apiParams)
+      return $.ajax(apiParams);
     }
 
     return apiReqSettings

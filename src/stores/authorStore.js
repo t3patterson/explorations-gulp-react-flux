@@ -20,23 +20,28 @@ var _authorEditFormState = {
 //----------------------------------------------------------
 // THE STORE -- Dispatcher Updates and Store Returns to Component
 //----------------------------------------------------------
+
+var changeListenerCB = null
+
 var AuthorStore = _.assign({},EventEmitter.prototype, {
   //note, the methods below have here will have EventEmitter's `.emit` ,` .on`,`.removeChangeListener`,  methods
     
     addChangeListener: function(cb){
-      var p = $.Deferred() 
-      p.resolve(this.on('storeChange', cb ));
+      var p = $.Deferred()
+      changeListenerCB = cb
+      p.resolve( this.on('store-change', cb ));
       return p
     },
 
     removeChangeListener: function(cb){
       var cb_fn = cb || function(){}
-      console.log('change listener removed')
-      this.removeListener('storeChange', cb_fn);
+      console.log(this)
+      this.removeListener('store-change', changeListenerCB)
+
     },
 
     emitChange: function(moreInfo){
-      this.emit('storeChange');
+      this.emit('store-change');
     },
    // -----------
 

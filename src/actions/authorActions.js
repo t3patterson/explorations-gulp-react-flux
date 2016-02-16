@@ -26,6 +26,7 @@ var AuthorActions = {
   },
 
   getSingleAuthor: function(dataObj){
+    console.log('...getting single author...')
     API.getSingle(dataObj).then(function(data){
       console.log(data.results[0])
       Dispatcher.dispatch({
@@ -73,6 +74,17 @@ var AuthorActions = {
         authorData: dataObj
       })
     })
+
+    var followAnimation = function() {
+      if (state.animating) {
+        setTimeout(function() {
+          if (state.animating) followAnimation()
+        },50)
+
+        // code that depends on animation being complete 
+      }
+
+    }
   
   }
 

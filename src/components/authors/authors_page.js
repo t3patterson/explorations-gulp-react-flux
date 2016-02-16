@@ -9,31 +9,41 @@ var AuthorsList = require('./_authors_tableComponent.js');
 var AuthorsPage = React.createClass({
   
   getInitialState: function(){
+    this._componentUnmounting = false
+    
     return {
-      authorsList: []
+      authorsList: [],
     }
   },
 
   //(1)
   componentDidMount: function(){
       console.log('authors_page.js mounted, bits');
+      console.log(this)
       this._onChange();
       AuthorActions.fetchAuthorsFromDB();
   },
 
   componentWillUnmount: function(){
-    console.log('component unmounted')
-    AuthorStore.removeChangeListener();
+    console.log('component unmounting --- AuthorsPage')
+    
+    this._componentUnmounting = true
+
+    AuthorStore.removeChangeListener(function(){
+      console.log('authors-page ++ change listener REMOVED ')
+    });
   },
 
   _onChange: function(){
     var self = this
+    console.log('!!! Adding CHANGE LISTENER !!!')
     AuthorStore.addChangeListener(function(){
-        console.log('changeListenerRuns')
-        console.log(AuthorStore.getAuthorsList())
-        self.setState({ authorsList: AuthorStore.getAuthorsList() });
+      console.log('component unmounting?? - ', this._componentUnmounting)
+      if(!this._componentUnmounting){
+        console.log('authors-page-changeListenerRuns')
+        this.setState({ authorsList: AuthorStore.getAuthorsList() });
       }
-    )
+    }.bind(this))
   },
 
   render: function(){
