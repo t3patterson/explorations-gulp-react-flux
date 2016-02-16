@@ -47315,6 +47315,11 @@ function APIConstructor(){
 
           apiParams.data = JSON.stringify(dataObject);
           console.log(apiParams)
+          break;
+        
+        case ('delete'):
+          apiParams.url += '/' + dataObject.objectId
+          apiParams.type = 'delete'
       }
 
       return $.ajax(apiParams)
@@ -47327,7 +47332,8 @@ function APIConstructor(){
     getAll: requestType('getAll'), //returns a FUNCTION that, when executed, will ajax-request+return a promise
     getSingle: requestType('getSingle'),
     post: requestType('post'),
-    update: requestType('update')
+    update: requestType('update'),
+    destroy: requestType('delete')
   }
 }
 
@@ -47421,6 +47427,20 @@ var AuthorActions = {
     Dispatcher.dispatch({
       actionType: ActionTypes.RESET_EDIT_FORM_STATE
     })
+  },
+
+  deleteSingleAuthor: function(dataObj){
+    API.destroy(dataObj).then(function(d){
+      console.log('Record DESRTOYED!')
+      console.log(d)
+      console.log('=======')
+
+      Dispatcher.dispatch({
+        actionType: ActionTypes.DELETE_AUTHOR,
+        authorData: dataObj
+      })
+    })
+  
   }
 
 
@@ -47531,7 +47551,7 @@ var AuthorActions = require('../../actions/authorActions.js');
 var CheckBoxComponent = require('../common/checkBox.js')
 
 var EditAuthorForm = React.createClass({displayName: "EditAuthorForm",
-
+  
   _modify_name_id: function(e){
     var inputEl = React.findDOMNode(e.target)
     var authrData =  _.clone(this.props.authorData)
@@ -47594,7 +47614,8 @@ var EditAuthorForm = React.createClass({displayName: "EditAuthorForm",
                   isChecked: this.props.authorData.active}), " ")
          )
         ), 
-        React.createElement("input", {type: "submit", className: "btn btn-info"})
+        React.createElement("input", {type: "submit", value: "Edit Author Info", className: "btn btn-info"}), 
+        React.createElement("button", {onClick: this.props.handleDelete, className: "btn btn-danger"}, "Delete Author")
       )
     )
   }
@@ -47655,7 +47676,7 @@ module.exports = NewAuthorsForm;
 
 },{"react":204}],213:[function(require,module,exports){
 var React = require('react')
-
+var Link = require('react-router').Link
 var AuthorStore = require('../../stores/authorStore.js');
 var AuthorActions = require('../../actions/authorActions.js');
 
@@ -47678,6 +47699,10 @@ var ShowSingleAuthor = React.createClass({displayName: "ShowSingleAuthor",
              React.createElement("li", null, "Joined on: ", d.getMonth()+1, " / ", d.getDate(), " / ", d.getFullYear()), 
              React.createElement("li", null, "Status: ", React.createElement("strong", null, this.props.authorData.active ? 'active':'inactive'))
            )
+       ), 
+       React.createElement("div", {className: "panel-footer"}, 
+          React.createElement(Link, {to: "edit-single-author", params: {autId: this.props.authorData.name_id}, className: "btn btn-warning"}, "Edit Single Author")
+
        )
      )
    )
@@ -47686,7 +47711,7 @@ var ShowSingleAuthor = React.createClass({displayName: "ShowSingleAuthor",
 
 module.exports = ShowSingleAuthor;
 
-},{"../../actions/authorActions.js":207,"../../stores/authorStore.js":226,"react":204}],214:[function(require,module,exports){
+},{"../../actions/authorActions.js":207,"../../stores/authorStore.js":226,"react":204,"react-router":34}],214:[function(require,module,exports){
 var React = require('react')
 
 var AuthorActions = require('../../actions/authorActions.js');
@@ -47762,9 +47787,11 @@ var EditAuthorComponent = React.createClass({displayName: "EditAuthorComponent",
   _handleSubmit: function(e){
     e.preventDefault();
 
-    console.log('submishion');
+    // console.log('submishion');
+    var form = React.findDOMNode(e.target)
+    
 
-    var inputEls = React.findDOMNode(e.target).querySelectorAll('input')
+    var inputEls = form.querySelectorAll('input')
 
     var userObj = {}
     
@@ -47781,20 +47808,29 @@ var EditAuthorComponent = React.createClass({displayName: "EditAuthorComponent",
       }
     })
     
-    console.log('Author data is....')
-    console.log(this.state.authorData)
+    // console.log('Author data is....')
+    // console.log(this.state.authorData)
     
     var updatedUser = _.extend(this.state.authorData, userObj);
     
-    console.log('...Updated User is this...')
-    console.log(updatedUser);
+    // console.log('...Updated User is this...')
+    // console.log(updatedUser);
     AuthorActions.updateSingleAuthor(updatedUser)
+  },
+
+  _handleDelete: function(e){
+    e.preventDefault();
+    console.log('AuthorActions.DeleteUser')
+    console.log( this.state.authorData )
+    console.log(e.target)
+    AuthorActions.deleteSingleAuthor(this.state.authorData)
   },
 
 
 
   componentDidMount: function(){
     var autIdParam = this.props.params.autId
+    AuthorActions.resetEditFormState()
 
     AuthorActions.getSingleAuthor({
       name_id: autIdParam
@@ -47842,7 +47878,10 @@ var EditAuthorComponent = React.createClass({displayName: "EditAuthorComponent",
   render: function(){
     console.log(this.state.authorData )
     if ( Object.keys( this.state.authorData ).length ){
-      return React.createElement(EditForm, {authorData: this.state.authorData, handleSubmit: this._handleSubmit})
+      return React.createElement(EditForm, {
+                authorData: this.state.authorData, 
+                handleSubmit: this._handleSubmit, 
+                handleDelete: this._handleDelete})
     } else {
       return React.createElement("p", null, "...loading...")
     }
@@ -48145,7 +48184,9 @@ var ActionTypes = keyMirror({
   
   UPDATE_AUTHOR: null,
   SET_EDIT_FORM_UI_STATE: null,
-  RESET_EDIT_FORM_STATE: null
+  RESET_EDIT_FORM_STATE: null,
+
+  DELETE_AUTHOR: null
 })
 
 module.exports = ActionTypes
@@ -48231,11 +48272,9 @@ var ActionTypes = require('../constants/actionTypes.js');
 var API = require('../_API.js');
 
 //----------------------------------------------------------
-// THE COLLECTION -- Dispatcher Updates and Store Returns to Component
+// State Variables -- Dispatcher Updates and Component Can Access Through AuthorStore
 //----------------------------------------------------------
 var _authorsList = [];
-var _author = "";
-
 var _recordHasBeenUpdated = false
 
 //author getting edited
@@ -48306,6 +48345,7 @@ Dispatcher.register( function(actionBlock) {
       _recordHasBeenUpdated = true;
       AuthorStore.emitChange();
       break;
+    
     case ActionTypes.EDIT_FORM_UPDATE_UI:
       console.log('ui state per store')
       console.log(actionBlock.authorData)
@@ -48314,11 +48354,17 @@ Dispatcher.register( function(actionBlock) {
         AuthorStore.emitChange();
       }
       break;
-    
+
     case ActionTypes.RESET_EDIT_FORM_STATE:
       _recordHasBeenUpdated = false;
       _authorEditFormState = {}
       break;
+    
+
+    case ActionTypes.DELETE_AUTHOR: 
+      console.log('author was deleted, mayne!!!');
+      _recordHasBeenUpdated = true
+      AuthorStore.emitChange();
     
     default:
       //no operation

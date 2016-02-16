@@ -60,6 +60,20 @@ var AuthorActions = {
     Dispatcher.dispatch({
       actionType: ActionTypes.RESET_EDIT_FORM_STATE
     })
+  },
+
+  deleteSingleAuthor: function(dataObj){
+    API.destroy(dataObj).then(function(d){
+      console.log('Record DESRTOYED!')
+      console.log(d)
+      console.log('=======')
+
+      Dispatcher.dispatch({
+        actionType: ActionTypes.DELETE_AUTHOR,
+        authorData: dataObj
+      })
+    })
+  
   }
 
 

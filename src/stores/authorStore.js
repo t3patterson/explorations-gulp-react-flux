@@ -7,11 +7,9 @@ var ActionTypes = require('../constants/actionTypes.js');
 var API = require('../_API.js');
 
 //----------------------------------------------------------
-// THE COLLECTION -- Dispatcher Updates and Store Returns to Component
+// State Variables -- Dispatcher Updates and Component Can Access Through AuthorStore
 //----------------------------------------------------------
 var _authorsList = [];
-var _author = "";
-
 var _recordHasBeenUpdated = false
 
 //author getting edited
@@ -82,6 +80,7 @@ Dispatcher.register( function(actionBlock) {
       _recordHasBeenUpdated = true;
       AuthorStore.emitChange();
       break;
+    
     case ActionTypes.EDIT_FORM_UPDATE_UI:
       console.log('ui state per store')
       console.log(actionBlock.authorData)
@@ -90,11 +89,17 @@ Dispatcher.register( function(actionBlock) {
         AuthorStore.emitChange();
       }
       break;
-    
+
     case ActionTypes.RESET_EDIT_FORM_STATE:
       _recordHasBeenUpdated = false;
       _authorEditFormState = {}
       break;
+    
+
+    case ActionTypes.DELETE_AUTHOR: 
+      console.log('author was deleted, mayne!!!');
+      _recordHasBeenUpdated = true
+      AuthorStore.emitChange();
     
     default:
       //no operation

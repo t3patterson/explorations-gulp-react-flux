@@ -6,7 +6,7 @@ var AuthorActions = require('../../actions/authorActions.js');
 var CheckBoxComponent = require('../common/checkBox.js')
 
 var EditAuthorForm = React.createClass({
-
+  
   _modify_name_id: function(e){
     var inputEl = React.findDOMNode(e.target)
     var authrData =  _.clone(this.props.authorData)
@@ -69,7 +69,8 @@ var EditAuthorForm = React.createClass({
                   isChecked={this.props.authorData.active}/> </td>
          </tr>
         </table>
-        <input type="submit" className="btn btn-info"/>
+        <input type="submit" value="Edit Author Info" className="btn btn-info"/>
+        <button onClick={this.props.handleDelete} className="btn btn-danger">Delete Author</button>
       </form>
     )
   }

@@ -22,9 +22,11 @@ var EditAuthorComponent = React.createClass({
   _handleSubmit: function(e){
     e.preventDefault();
 
-    console.log('submishion');
+    // console.log('submishion');
+    var form = React.findDOMNode(e.target)
+    
 
-    var inputEls = React.findDOMNode(e.target).querySelectorAll('input')
+    var inputEls = form.querySelectorAll('input')
 
     var userObj = {}
     
@@ -41,20 +43,29 @@ var EditAuthorComponent = React.createClass({
       }
     })
     
-    console.log('Author data is....')
-    console.log(this.state.authorData)
+    // console.log('Author data is....')
+    // console.log(this.state.authorData)
     
     var updatedUser = _.extend(this.state.authorData, userObj);
     
-    console.log('...Updated User is this...')
-    console.log(updatedUser);
+    // console.log('...Updated User is this...')
+    // console.log(updatedUser);
     AuthorActions.updateSingleAuthor(updatedUser)
+  },
+
+  _handleDelete: function(e){
+    e.preventDefault();
+    console.log('AuthorActions.DeleteUser')
+    console.log( this.state.authorData )
+    console.log(e.target)
+    AuthorActions.deleteSingleAuthor(this.state.authorData)
   },
 
 
 
   componentDidMount: function(){
     var autIdParam = this.props.params.autId
+    AuthorActions.resetEditFormState()
 
     AuthorActions.getSingleAuthor({
       name_id: autIdParam
@@ -102,7 +113,10 @@ var EditAuthorComponent = React.createClass({
   render: function(){
     console.log(this.state.authorData )
     if ( Object.keys( this.state.authorData ).length ){
-      return <EditForm authorData={this.state.authorData} handleSubmit={this._handleSubmit}/>
+      return <EditForm 
+                authorData={this.state.authorData} 
+                handleSubmit={this._handleSubmit} 
+                handleDelete={this._handleDelete} />
     } else {
       return <p>...loading...</p>
     }

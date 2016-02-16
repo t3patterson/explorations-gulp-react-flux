@@ -1,5 +1,5 @@
 var React = require('react')
-
+var Link = require('react-router').Link
 var AuthorStore = require('../../stores/authorStore.js');
 var AuthorActions = require('../../actions/authorActions.js');
 
@@ -22,6 +22,10 @@ var ShowSingleAuthor = React.createClass({
              <li>Joined on: {d.getMonth()+1} / {d.getDate()} / {d.getFullYear()}</li>
              <li>Status: <strong>{this.props.authorData.active ? 'active':'inactive'}</strong></li>
            </ul>
+       </div>
+       <div className="panel-footer">
+          <Link to="edit-single-author" params={{autId: this.props.authorData.name_id}} className="btn btn-warning">Edit Single Author</Link>
+
        </div>
      </div>
    )
