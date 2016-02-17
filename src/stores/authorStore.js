@@ -26,17 +26,18 @@ var changeListenerCB = null
 var AuthorStore = _.assign({},EventEmitter.prototype, {
   //note, the methods below have here will have EventEmitter's `.emit` ,` .on`,`.removeChangeListener`,  methods
     
+    storeChange_fn: null,
+
     addChangeListener: function(cb){
       var p = $.Deferred()
-      changeListenerCB = cb
-      p.resolve( this.on('store-change', cb ));
+      this.storeChange_fn = cb
+      p.resolve( this.on('store-change', this.storeChange_fn ) );
       return p
     },
 
-    removeChangeListener: function(cb){
-      var cb_fn = cb || function(){}
+    removeChangeListener: function(){
       console.log(this)
-      this.removeListener('store-change', changeListenerCB)
+      this.removeListener('store-change', this.storeChange_fn )
 
     },
 
@@ -74,7 +75,7 @@ Dispatcher.register( function(actionBlock) {
       break;
     
     case ActionTypes.GET_SINGLE_AUTHOR:
-      console.log(actionBlock.authorData)
+      // console.log(actionBlock.authorData)
       _authorsList = []
       _authorsList.push(actionBlock.authorData)
       _authorEditFormState = actionBlock.authorData
@@ -87,8 +88,8 @@ Dispatcher.register( function(actionBlock) {
       break;
     
     case ActionTypes.EDIT_FORM_UPDATE_UI:
-      console.log('ui state per store')
-      console.log(actionBlock.authorData)
+      // console.log('ui state per store')
+      // console.log(actionBlock.authorData)
       if ( JSON.stringify(_authorEditFormState) !== JSON.stringify(actionBlock.authorData) ){
         _authorEditFormState = actionBlock.authorData;
         AuthorStore.emitChange();
@@ -102,7 +103,7 @@ Dispatcher.register( function(actionBlock) {
     
 
     case ActionTypes.DELETE_AUTHOR: 
-      console.log('author was deleted, mayne!!!');
+      // console.log('author was deleted, mayne!!!');
       _recordHasBeenUpdated = true
       AuthorStore.emitChange();
     

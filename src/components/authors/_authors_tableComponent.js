@@ -18,8 +18,7 @@ var AuthorsList = React.createClass({
         <td>
           <Link 
             to="show-single-author" 
-            params={{autId: auth.name_id}} 
-            onClick={function(){console.log('---->',auth.name_id)}}> 
+            params={{autId: auth.name_id}} > 
 
             {auth.name_id} 
 

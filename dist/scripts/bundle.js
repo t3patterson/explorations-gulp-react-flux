@@ -47309,23 +47309,23 @@ function APIConstructor(){
           break;
 
         case ('update'):
-          console.log(dataObject)
           apiParams.type = 'put';
-          apiParams.url = apiURL + '/'+dataObject.objectId;
+          apiParams.url = apiURL + '/' + dataObject.objectId;
           apiParams.contentType = 'application/json';
           delete dataObject.objectId;
           delete dataObject.updatedAt;
           delete dataObject.createdAt;
 
           apiParams.data = JSON.stringify(dataObject);
-          console.log(apiParams);
           break;
         
         case ('delete'):
-          apiParams.url += apiURL + '/' + dataObject.objectId;
+          apiParams.url = apiURL + '/' + dataObject.objectId;
           apiParams.type = 'delete';
       }
 
+      // console.log(dataObject)
+      // console.log(apiParams);
       return $.ajax(apiParams);
     }
 
@@ -47530,8 +47530,7 @@ var AuthorsList = React.createClass({displayName: "AuthorsList",
         React.createElement("td", null, 
           React.createElement(Link, {
             to: "show-single-author", 
-            params: {autId: auth.name_id}, 
-            onClick: function(){console.log('---->',auth.name_id)}}, 
+            params: {autId: auth.name_id}}, 
 
             auth.name_id
 
@@ -47756,30 +47755,20 @@ var AuthorsPage = React.createClass({displayName: "AuthorsPage",
   //(1)
   componentDidMount: function(){
       console.log('authors_page.js mounted, bits');
-      console.log(this)
       this._onChange();
       AuthorActions.fetchAuthorsFromDB();
   },
 
   componentWillUnmount: function(){
-    console.log('component unmounting --- AuthorsPage')
+    // console.log('component unmounting --- AuthorsPage')
     
-    this._componentUnmounting = true
-
-    AuthorStore.removeChangeListener(function(){
-      console.log('authors-page ++ change listener REMOVED ')
-    });
+    AuthorStore.removeChangeListener();
   },
 
   _onChange: function(){
     var self = this
-    console.log('!!! Adding CHANGE LISTENER !!!')
     AuthorStore.addChangeListener(function(){
-      console.log('component unmounting?? - ', this._componentUnmounting)
-      if(!this._componentUnmounting){
-        console.log('authors-page-changeListenerRuns')
-        this.setState({ authorsList: AuthorStore.getAuthorsList() });
-      }
+      this.setState({ authorsList: AuthorStore.getAuthorsList() });
     }.bind(this))
   },
 
@@ -47876,13 +47865,11 @@ var EditAuthorComponent = React.createClass({displayName: "EditAuthorComponent",
     var authorNameId = nameId
     var self = this
     AuthorStore.addChangeListener(function(){
-      console.log('change herrrrd -- single author edit')
-      console.log('record updated???')
       //if record was updated, transition to another page
       if( AuthorStore.recordWasUpdated() ){
         
-        console.log('Record WAS UPDATED!')
-        console.log('Transitioning---->>')
+        // console.log('Record WAS UPDATED!')
+        // console.log('Transitioning---->>')
 
         this.transitionTo('authors')
 
@@ -47893,8 +47880,8 @@ var EditAuthorComponent = React.createClass({displayName: "EditAuthorComponent",
           return aut.name_id === authorNameId
         })
 
-        console.log('Record Fresh-->') 
-        console.log(authorRecord)
+        // console.log('Record Fresh-->') 
+        // console.log(authorRecord)
 
 
         //get the editform UI State
@@ -47914,12 +47901,9 @@ var EditAuthorComponent = React.createClass({displayName: "EditAuthorComponent",
   },
 
   componentWillUnmount: function(){
-    console.log('EDIT page unmounting')
-    console.log('xxxxxxxxxxxxxxx')
+    // console.log('EDIT page unmounting', '\nxxxxxxxxxxxxxxx')
 
-    AuthorStore.removeChangeListener(function(){
-      console.log('single-page-edit ++ change listener REMOVED ')
-    })
+    AuthorStore.removeChangeListener()
   },
 
   render: function(){
@@ -48350,17 +48334,18 @@ var changeListenerCB = null
 var AuthorStore = _.assign({},EventEmitter.prototype, {
   //note, the methods below have here will have EventEmitter's `.emit` ,` .on`,`.removeChangeListener`,  methods
     
+    storeChange_fn: null,
+
     addChangeListener: function(cb){
       var p = $.Deferred()
-      changeListenerCB = cb
-      p.resolve( this.on('store-change', cb ));
+      this.storeChange_fn = cb
+      p.resolve( this.on('store-change', this.storeChange_fn ) );
       return p
     },
 
-    removeChangeListener: function(cb){
-      var cb_fn = cb || function(){}
+    removeChangeListener: function(){
       console.log(this)
-      this.removeListener('store-change', changeListenerCB)
+      this.removeListener('store-change', this.storeChange_fn )
 
     },
 
@@ -48398,7 +48383,7 @@ Dispatcher.register( function(actionBlock) {
       break;
     
     case ActionTypes.GET_SINGLE_AUTHOR:
-      console.log(actionBlock.authorData)
+      // console.log(actionBlock.authorData)
       _authorsList = []
       _authorsList.push(actionBlock.authorData)
       _authorEditFormState = actionBlock.authorData
@@ -48411,8 +48396,8 @@ Dispatcher.register( function(actionBlock) {
       break;
     
     case ActionTypes.EDIT_FORM_UPDATE_UI:
-      console.log('ui state per store')
-      console.log(actionBlock.authorData)
+      // console.log('ui state per store')
+      // console.log(actionBlock.authorData)
       if ( JSON.stringify(_authorEditFormState) !== JSON.stringify(actionBlock.authorData) ){
         _authorEditFormState = actionBlock.authorData;
         AuthorStore.emitChange();
@@ -48426,7 +48411,7 @@ Dispatcher.register( function(actionBlock) {
     
 
     case ActionTypes.DELETE_AUTHOR: 
-      console.log('author was deleted, mayne!!!');
+      // console.log('author was deleted, mayne!!!');
       _recordHasBeenUpdated = true
       AuthorStore.emitChange();
     

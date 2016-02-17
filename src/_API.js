@@ -35,23 +35,23 @@ function APIConstructor(){
           break;
 
         case ('update'):
-          console.log(dataObject)
           apiParams.type = 'put';
-          apiParams.url = apiURL + '/'+dataObject.objectId;
+          apiParams.url = apiURL + '/' + dataObject.objectId;
           apiParams.contentType = 'application/json';
           delete dataObject.objectId;
           delete dataObject.updatedAt;
           delete dataObject.createdAt;
 
           apiParams.data = JSON.stringify(dataObject);
-          console.log(apiParams);
           break;
         
         case ('delete'):
-          apiParams.url += apiURL + '/' + dataObject.objectId;
+          apiParams.url = apiURL + '/' + dataObject.objectId;
           apiParams.type = 'delete';
       }
 
+      // console.log(dataObject)
+      // console.log(apiParams);
       return $.ajax(apiParams);
     }
 

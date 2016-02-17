@@ -78,13 +78,11 @@ var EditAuthorComponent = React.createClass({
     var authorNameId = nameId
     var self = this
     AuthorStore.addChangeListener(function(){
-      console.log('change herrrrd -- single author edit')
-      console.log('record updated???')
       //if record was updated, transition to another page
       if( AuthorStore.recordWasUpdated() ){
         
-        console.log('Record WAS UPDATED!')
-        console.log('Transitioning---->>')
+        // console.log('Record WAS UPDATED!')
+        // console.log('Transitioning---->>')
 
         this.transitionTo('authors')
 
@@ -95,8 +93,8 @@ var EditAuthorComponent = React.createClass({
           return aut.name_id === authorNameId
         })
 
-        console.log('Record Fresh-->') 
-        console.log(authorRecord)
+        // console.log('Record Fresh-->') 
+        // console.log(authorRecord)
 
 
         //get the editform UI State
@@ -116,12 +114,9 @@ var EditAuthorComponent = React.createClass({
   },
 
   componentWillUnmount: function(){
-    console.log('EDIT page unmounting')
-    console.log('xxxxxxxxxxxxxxx')
+    // console.log('EDIT page unmounting', '\nxxxxxxxxxxxxxxx')
 
-    AuthorStore.removeChangeListener(function(){
-      console.log('single-page-edit ++ change listener REMOVED ')
-    })
+    AuthorStore.removeChangeListener()
   },
 
   render: function(){

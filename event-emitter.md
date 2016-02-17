@@ -1,23 +1,3 @@
-#Gulp File Setup
-```
-var sass = require('gulp-sass');
-var scsslint = require('gulp-scss-lint');
-var sourcemaps = require('gulp-sourcemaps');
-var cssnano = require('gulp-cssnano');
-```
-
-```
-gulp.task('scss', function(){
-  gulp.src(config.paths.scss)
-    .pipe(sourcemaps.init())
-    .pipe(sass().on('error', sass.logError))
-    .pipe(sourcemaps.write())
-    .pipe(cssnano())
-    .pipe( gulp.dest( config.paths.dist+"/css/includes" ) )
-})
-```
-
-
 #Exploration into react router
 
 ##React Router
