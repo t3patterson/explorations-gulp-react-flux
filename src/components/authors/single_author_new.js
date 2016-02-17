@@ -1,5 +1,9 @@
 var React = require('react');
-var Router = require('react-router')
+var Router = require('react-router');
+
+var _ = require('lodash');
+
+var superForEach = require('../../_utils.js').superForEach
 
 var NewAuthorForm = require('./_new_author_form.js');
 var API = require('../../_API.js');
@@ -17,7 +21,10 @@ var NewAuthorPage = React.createClass({
       errorMessages: {
         firstName: null,
         lastName: null
-      }
+      },
+
+      formComplete: false
+
     }
   },
 
@@ -40,6 +47,16 @@ var NewAuthorPage = React.createClass({
       errorProps.lastName = null;
     }
 
+    if ( isNaN(userInput.age) || userInput.age.length < 1){
+      
+      formIsValid = false
+      console.log("Please endter a number..")
+      errorProps.age = "Please enter in a number"
+    } else if (parseInt(userInput.age) < 10){
+      
+      errorProps.age = "Sorry, too young"
+    } 
+
     this.setState({
       errorMessages: errorProps
     });
@@ -51,33 +68,53 @@ var NewAuthorPage = React.createClass({
   _onSave: function(e){
     e.preventDefault();
     var form = this.form = e.target
+    console.log(this.form.active)
     var userInputData = {
       firstName : form.firstName.value,
       lastName  : form.lastName.value,
-      name_id   : form.firstName.value.toLowerCase() + "-" + form.lastName.value.toLowerCase()
+      name_id   : form.firstName.value.toLowerCase() + "-" + form.lastName.value.toLowerCase(),
+      age       : form.age.value,
+      active    : form.active.checked
     }
 
     if ( this._isFormValid(userInputData) ){
       
+      var sanitizedInput = _.clone(userInputData)
+
+      sanitizedInput.age = parseInt(sanitizedInput.age,0)
+      
+      console.log(sanitizedInput)
+
+      console.log('form 2 db!')
+      console.log(sanitizedInput)
+      
+      AuthorActions.postNewAuthorToDB(sanitizedInput);
+
       this.setState({
-        errors: {
+        errorsMessages: {
           firstName: null,
-          lastName: null
-        }
+          lastName: null,
+          age: null
+        },
+
+        formComplete: true
+      
       });
 
-      AuthorActions.postNewAuthorToDB(userInputData);
     } 
   },
 
   componentDidMount: function(){
     AuthorStore.addChangeListener(function(){
       // console.log('new authore data:.....')
-      if (this.form){
+      if (this.state.formComplete){
         this.form.firstName.value = '';
         this.form.lastName.value = '';
+        this.form.lastName.age = '';
+        this.form.lastName.active = false;
         this.transitionTo('authors');
       }
+
     }.bind(this));
   },
 

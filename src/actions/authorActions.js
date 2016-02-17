@@ -6,7 +6,8 @@ var ActionTypes = require('../constants/actionTypes.js');
 
 var AuthorActions = {
   postNewAuthorToDB: function(data){
-    API.post(data).then(function(savedRecord){
+    console.log('posting to db')
+    API.create(data).then(function(savedRecord){
       Dispatcher.dispatch({
         actionType: ActionTypes.CREATE_AUTHOR,
         authorData: savedRecord

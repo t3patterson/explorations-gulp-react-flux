@@ -19,6 +19,20 @@ var EditAuthorComponent = React.createClass({
     }
   },
 
+  _modify_name_id: function(e){
+    var inputEl = React.findDOMNode(e.target)
+    var authrData =  _.clone(this.state.authorData)
+
+    var propName = React.findDOMNode(e.target).dataset.field
+
+    authrData[propName] = inputEl.value
+    authrData.name_id = authrData.firstName.toLowerCase()+'-'+authrData.lastName.toLowerCase();
+
+    // console.log(authrData)
+    AuthorActions.setEditFormState(authrData);
+  },
+
+
   _handleSubmit: function(e){
     e.preventDefault();
 
@@ -26,31 +40,36 @@ var EditAuthorComponent = React.createClass({
     var form = React.findDOMNode(e.target)
     
 
-    var inputEls = form.querySelectorAll('input')
+    var formInputs = form.querySelectorAll('input')
 
-    var userObj = {}
+    var userObj_ToDB = this.__sanitizeInputs(formInputs)
+    // console.log('Author data is....')
+    // console.log(this.state.authorData)
+    
+    var updatedUser = _.extend(this.state.authorData, userObj_ToDB);
+    
+    // console.log('...Updated User is this...')
+    // console.log(updatedUser);
+    AuthorActions.updateSingleAuthor(updatedUser)
+  },
+
+  __sanitizeInputs: function(inputEls){
+    var sanitizedObj = {}
     
     superForEach(inputEls,function(el){
       if (el.id.length){
         
         switch(el.type){
           case ('checkbox'):
-            userObj[el.id] = el.checked
+            sanitizedObj[el.id] = el.checked
             break;
           default:
-            userObj[el.id] =  isNaN(el.value) ? el.value : parseInt(el.value,10);
+            sanitizedObj[el.id] =  isNaN(el.value) ? el.value : parseInt(el.value,10);
         }
       }
     })
     
-    // console.log('Author data is....')
-    // console.log(this.state.authorData)
-    
-    var updatedUser = _.extend(this.state.authorData, userObj);
-    
-    // console.log('...Updated User is this...')
-    // console.log(updatedUser);
-    AuthorActions.updateSingleAuthor(updatedUser)
+    return sanitizedObj
   },
 
   _handleDelete: function(e){

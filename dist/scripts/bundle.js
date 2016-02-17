@@ -47312,10 +47312,10 @@ function APIConstructor(){
           apiParams.type = 'put';
           apiParams.url = apiURL + '/' + dataObject.objectId;
           apiParams.contentType = 'application/json';
-          delete dataObject.objectId;
-          delete dataObject.updatedAt;
-          delete dataObject.createdAt;
-
+          
+          if(dataObject.objectId) { delete dataObject.objectId;  }
+          if(dataObject.updatedAt){ delete dataObject.updatedAt; }
+          if(dataObject.createdAt){ delete dataObject.createdAt; }
           apiParams.data = JSON.stringify(dataObject);
           break;
         
@@ -47335,7 +47335,7 @@ function APIConstructor(){
   return {
     getAll: requestType('getAll'), //returns a FUNCTION that, when executed, will ajax-request+return a promise
     getSingle: requestType('getSingle'),
-    post: requestType('post'),
+    create: requestType('post'),
     update: requestType('update'),
     destroy: requestType('delete')
   }
@@ -47377,7 +47377,8 @@ var ActionTypes = require('../constants/actionTypes.js');
 
 var AuthorActions = {
   postNewAuthorToDB: function(data){
-    API.post(data).then(function(savedRecord){
+    console.log('posting to db')
+    API.create(data).then(function(savedRecord){
       Dispatcher.dispatch({
         actionType: ActionTypes.CREATE_AUTHOR,
         authorData: savedRecord
@@ -47574,19 +47575,7 @@ var CheckBoxComponent = require('../common/checkBox.js')
 
 var EditAuthorForm = React.createClass({displayName: "EditAuthorForm",
   
-  _modify_name_id: function(e){
-    var inputEl = React.findDOMNode(e.target)
-    var authrData =  _.clone(this.props.authorData)
-
-    var propName = React.findDOMNode(e.target).dataset.field
-
-    authrData[propName] = inputEl.value
-    authrData.name_id = authrData.firstName.toLowerCase()+'-'+authrData.lastName.toLowerCase();
-
-    // console.log(authrData)
-    AuthorActions.setEditFormState(authrData);
-
-  },
+  
 
  
   render: function(){
@@ -47601,7 +47590,7 @@ var EditAuthorForm = React.createClass({displayName: "EditAuthorForm",
                 defaultValue: this.props.authorData.firstName, 
                 className: "form-control", 
                 "data-field": "firstName", 
-                onChange: this._modify_name_id})
+                onChange: this.props.modify_name_id})
           )
          ), 
          React.createElement("tr", null, 
@@ -47612,7 +47601,7 @@ var EditAuthorForm = React.createClass({displayName: "EditAuthorForm",
               defaultValue: this.props.authorData.lastName, 
               className: "form-control", 
               "data-field": "lastName", 
-              onChange: this._modify_name_id})
+              onChange: this.props.modify_name_id})
             )
          ), 
          React.createElement("tr", null, 
@@ -47647,6 +47636,7 @@ module.exports = EditAuthorForm;
 
 },{"../../actions/authorActions.js":207,"../common/checkBox.js":218,"lodash":8,"react":204}],212:[function(require,module,exports){
 var React = require('react')
+var CheckBox = require('../common/checkBox.js')
 
 var NewAuthorsForm = React.createClass({displayName: "NewAuthorsForm",
   
@@ -47685,10 +47675,31 @@ var NewAuthorsForm = React.createClass({displayName: "NewAuthorsForm",
         ), 
          this.showElOnError(this.props.errors.lastName), 
         React.createElement("br", null), 
+       
+       React.createElement("label", {htmlFor: "age"}, "Age"), 
+        React.createElement("input", {type: "text", 
+          name: "age", 
+          className: "form-control", 
+          placeholder: "Age", 
+          ref: "age", 
+          defaultValue: ""}
+        ), 
+         this.showElOnError(this.props.errors.age), 
+        React.createElement("br", null), 
 
+        React.createElement("label", {htmlFor: "age"}, "Active"), 
+        React.createElement(CheckBox, {
+          fieldName: 'active', 
+          isChecked: false}
+        ), 
+
+
+
+        React.createElement("br", null), 
         React.createElement("input", {type: "submit", 
           className: "btn btn-default", 
           value: "Submit"})
+
       )
     )
   }
@@ -47696,7 +47707,7 @@ var NewAuthorsForm = React.createClass({displayName: "NewAuthorsForm",
 
 module.exports = NewAuthorsForm;
 
-},{"react":204}],213:[function(require,module,exports){
+},{"../common/checkBox.js":218,"react":204}],213:[function(require,module,exports){
 var React = require('react')
 var Link = require('react-router').Link
 var AuthorStore = require('../../stores/authorStore.js');
@@ -47806,6 +47817,20 @@ var EditAuthorComponent = React.createClass({displayName: "EditAuthorComponent",
     }
   },
 
+  _modify_name_id: function(e){
+    var inputEl = React.findDOMNode(e.target)
+    var authrData =  _.clone(this.state.authorData)
+
+    var propName = React.findDOMNode(e.target).dataset.field
+
+    authrData[propName] = inputEl.value
+    authrData.name_id = authrData.firstName.toLowerCase()+'-'+authrData.lastName.toLowerCase();
+
+    // console.log(authrData)
+    AuthorActions.setEditFormState(authrData);
+  },
+
+
   _handleSubmit: function(e){
     e.preventDefault();
 
@@ -47813,31 +47838,36 @@ var EditAuthorComponent = React.createClass({displayName: "EditAuthorComponent",
     var form = React.findDOMNode(e.target)
     
 
-    var inputEls = form.querySelectorAll('input')
+    var formInputs = form.querySelectorAll('input')
 
-    var userObj = {}
+    var userObj_ToDB = this.__sanitizeInputs(formInputs)
+    // console.log('Author data is....')
+    // console.log(this.state.authorData)
+    
+    var updatedUser = _.extend(this.state.authorData, userObj_ToDB);
+    
+    // console.log('...Updated User is this...')
+    // console.log(updatedUser);
+    AuthorActions.updateSingleAuthor(updatedUser)
+  },
+
+  __sanitizeInputs: function(inputEls){
+    var sanitizedObj = {}
     
     superForEach(inputEls,function(el){
       if (el.id.length){
         
         switch(el.type){
           case ('checkbox'):
-            userObj[el.id] = el.checked
+            sanitizedObj[el.id] = el.checked
             break;
           default:
-            userObj[el.id] =  isNaN(el.value) ? el.value : parseInt(el.value,10);
+            sanitizedObj[el.id] =  isNaN(el.value) ? el.value : parseInt(el.value,10);
         }
       }
     })
     
-    // console.log('Author data is....')
-    // console.log(this.state.authorData)
-    
-    var updatedUser = _.extend(this.state.authorData, userObj);
-    
-    // console.log('...Updated User is this...')
-    // console.log(updatedUser);
-    AuthorActions.updateSingleAuthor(updatedUser)
+    return sanitizedObj
   },
 
   _handleDelete: function(e){
@@ -47923,7 +47953,11 @@ module.exports = EditAuthorComponent;
 
 },{"../../_utils.js":206,"../../actions/authorActions.js":207,"../../stores/authorStore.js":226,"./_edit_author_form.js":211,"react":204,"react-router":34}],216:[function(require,module,exports){
 var React = require('react');
-var Router = require('react-router')
+var Router = require('react-router');
+
+var _ = require('lodash');
+
+var superForEach = require('../../_utils.js').superForEach
 
 var NewAuthorForm = require('./_new_author_form.js');
 var API = require('../../_API.js');
@@ -47941,7 +47975,10 @@ var NewAuthorPage = React.createClass({displayName: "NewAuthorPage",
       errorMessages: {
         firstName: null,
         lastName: null
-      }
+      },
+
+      formComplete: false
+
     }
   },
 
@@ -47964,6 +48001,16 @@ var NewAuthorPage = React.createClass({displayName: "NewAuthorPage",
       errorProps.lastName = null;
     }
 
+    if ( isNaN(userInput.age) || userInput.age.length < 1){
+      
+      formIsValid = false
+      console.log("Please endter a number..")
+      errorProps.age = "Please enter in a number"
+    } else if (parseInt(userInput.age) < 10){
+      
+      errorProps.age = "Sorry, too young"
+    } 
+
     this.setState({
       errorMessages: errorProps
     });
@@ -47975,33 +48022,53 @@ var NewAuthorPage = React.createClass({displayName: "NewAuthorPage",
   _onSave: function(e){
     e.preventDefault();
     var form = this.form = e.target
+    console.log(this.form.active)
     var userInputData = {
       firstName : form.firstName.value,
       lastName  : form.lastName.value,
-      name_id   : form.firstName.value.toLowerCase() + "-" + form.lastName.value.toLowerCase()
+      name_id   : form.firstName.value.toLowerCase() + "-" + form.lastName.value.toLowerCase(),
+      age       : form.age.value,
+      active    : form.active.checked
     }
 
     if ( this._isFormValid(userInputData) ){
       
+      var sanitizedInput = _.clone(userInputData)
+
+      sanitizedInput.age = parseInt(sanitizedInput.age,0)
+      
+      console.log(sanitizedInput)
+
+      console.log('form 2 db!')
+      console.log(sanitizedInput)
+      
+      AuthorActions.postNewAuthorToDB(sanitizedInput);
+
       this.setState({
-        errors: {
+        errorsMessages: {
           firstName: null,
-          lastName: null
-        }
+          lastName: null,
+          age: null
+        },
+
+        formComplete: true
+      
       });
 
-      AuthorActions.postNewAuthorToDB(userInputData);
     } 
   },
 
   componentDidMount: function(){
     AuthorStore.addChangeListener(function(){
       // console.log('new authore data:.....')
-      if (this.form){
+      if (this.state.formComplete){
         this.form.firstName.value = '';
         this.form.lastName.value = '';
+        this.form.lastName.age = '';
+        this.form.lastName.active = false;
         this.transitionTo('authors');
       }
+
     }.bind(this));
   },
 
@@ -48022,7 +48089,7 @@ var NewAuthorPage = React.createClass({displayName: "NewAuthorPage",
 
 module.exports = NewAuthorPage;
 
-},{"../../_API.js":205,"../../actions/authorActions.js":207,"../../stores/authorStore.js":226,"./_new_author_form.js":212,"react":204,"react-router":34}],217:[function(require,module,exports){
+},{"../../_API.js":205,"../../_utils.js":206,"../../actions/authorActions.js":207,"../../stores/authorStore.js":226,"./_new_author_form.js":212,"lodash":8,"react":204,"react-router":34}],217:[function(require,module,exports){
 var React = require('react')
 
 var AuthorStore = require('../../stores/authorStore.js');
@@ -48102,7 +48169,7 @@ var CheckBox = React.createClass({displayName: "CheckBox",
     }
   },
 
-  _changeSelector: function(e){
+  _toggleCheckBox: function(e){
 
     if ( !this.state.isChecked ){
       this.setState({
@@ -48136,7 +48203,7 @@ var CheckBox = React.createClass({displayName: "CheckBox",
         checked: this.state.isChecked, 
         "data-field": this.props.fieldName, 
         className: "form-control", 
-        onChange: this._changeSelector})
+        onChange: this._toggleCheckBox})
     )
   }
 })

@@ -10,7 +10,7 @@ var CheckBox = React.createClass({
     }
   },
 
-  _changeSelector: function(e){
+  _toggleCheckBox: function(e){
 
     if ( !this.state.isChecked ){
       this.setState({
@@ -44,7 +44,7 @@ var CheckBox = React.createClass({
         checked={this.state.isChecked} 
         data-field={this.props.fieldName} 
         className="form-control" 
-        onChange={this._changeSelector} />
+        onChange={this._toggleCheckBox} />
     )
   }
 })

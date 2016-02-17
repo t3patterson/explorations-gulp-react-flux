@@ -38,10 +38,10 @@ function APIConstructor(){
           apiParams.type = 'put';
           apiParams.url = apiURL + '/' + dataObject.objectId;
           apiParams.contentType = 'application/json';
-          delete dataObject.objectId;
-          delete dataObject.updatedAt;
-          delete dataObject.createdAt;
-
+          
+          if(dataObject.objectId) { delete dataObject.objectId;  }
+          if(dataObject.updatedAt){ delete dataObject.updatedAt; }
+          if(dataObject.createdAt){ delete dataObject.createdAt; }
           apiParams.data = JSON.stringify(dataObject);
           break;
         
@@ -61,7 +61,7 @@ function APIConstructor(){
   return {
     getAll: requestType('getAll'), //returns a FUNCTION that, when executed, will ajax-request+return a promise
     getSingle: requestType('getSingle'),
-    post: requestType('post'),
+    create: requestType('post'),
     update: requestType('update'),
     destroy: requestType('delete')
   }

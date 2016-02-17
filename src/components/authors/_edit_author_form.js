@@ -7,19 +7,7 @@ var CheckBoxComponent = require('../common/checkBox.js')
 
 var EditAuthorForm = React.createClass({
   
-  _modify_name_id: function(e){
-    var inputEl = React.findDOMNode(e.target)
-    var authrData =  _.clone(this.props.authorData)
-
-    var propName = React.findDOMNode(e.target).dataset.field
-
-    authrData[propName] = inputEl.value
-    authrData.name_id = authrData.firstName.toLowerCase()+'-'+authrData.lastName.toLowerCase();
-
-    // console.log(authrData)
-    AuthorActions.setEditFormState(authrData);
-
-  },
+  
 
  
   render: function(){
@@ -34,7 +22,7 @@ var EditAuthorForm = React.createClass({
                 defaultValue={this.props.authorData.firstName}  
                 className="form-control" 
                 data-field={"firstName"}
-                onChange={this._modify_name_id} />
+                onChange={this.props.modify_name_id} />
           </td>
          </tr>
          <tr>
@@ -45,7 +33,7 @@ var EditAuthorForm = React.createClass({
               defaultValue={this.props.authorData.lastName} 
               className="form-control" 
               data-field={"lastName"} 
-              onChange={this._modify_name_id} />
+              onChange={this.props.modify_name_id} />
             </td>
          </tr>
          <tr>

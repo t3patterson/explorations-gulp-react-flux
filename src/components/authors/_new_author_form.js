@@ -1,4 +1,5 @@
 var React = require('react')
+var CheckBox = require('../common/checkBox.js')
 
 var NewAuthorsForm = React.createClass({
   
@@ -37,10 +38,31 @@ var NewAuthorsForm = React.createClass({
         />
         { this.showElOnError(this.props.errors.lastName) }        
         <br/>
+       
+       <label htmlFor="age">Age</label>
+        <input type= "text"
+          name= "age"
+          className= "form-control"
+          placeholder= "Age"
+          ref="age"
+          defaultValue= ""
+        />
+        { this.showElOnError(this.props.errors.age) }
+        <br/>
 
+        <label htmlFor="age">Active</label>
+        <CheckBox 
+          fieldName={'active'}
+          isChecked={false}
+        />
+
+
+
+        <br/>
         <input type="submit"
           className="btn btn-default"
           value="Submit"/>
+
       </form>
     )
   }
